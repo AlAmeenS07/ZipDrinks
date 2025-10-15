@@ -1,0 +1,253 @@
+Absolutely! Let's refactor your full authController into Controller + Service + Utils structure. I’ll create separate files for services, controllers, and utilities like email sending and JWT handling. This will follow clean architecture best practices.
+
+Folder structure:
+project/
+├─ controllers/
+│  └─ authController.js
+├─ services/
+│  └─ authService.js
+├─ utils/
+│  ├─ emailService.js
+│  └─ jwtHelper.js
+├─ models/
+│  └─ userModel.js
+
+1️⃣ utils/emailService.js
+
+import transporter from "../confiq/nodemailer.js";
+
+export const sendMail = async ({ to, subject, text }) => {
+    const mailOptions = { from: process.env.SENDER_EMAIL, to, subject, text };
+    await transporter.sendMail(mailOptions);
+};
+
+2️⃣ utils/jwtHelper.js
+
+import jwt from "jsonwebtoken";
+
+export const generateToken = (payload, expiresIn = "7d") => {
+    return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
+};
+
+export const verifyToken = (token) => {
+    return jwt.verify(token, process.env.JWT_SECRET);
+};
+
+
+3️⃣ services/authService.js
+
+import userModel from "../models/userModel.js";
+import bcrypt from "bcryptjs";
+import { sendMail } from "../utils/emailService.js";
+import { generateToken } from "../utils/jwtHelper.js";
+
+export const registerUser = async ({ fullname, email, phone, password }) => {
+    const existUser = await userModel.findOne({ email });
+    if (existUser) throw new Error("User already exists");
+
+    const hashPassword = await bcrypt.hash(password, 10);
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+
+    const user = new userModel({
+        fullname,
+        email,
+        phone,
+        password: hashPassword,
+        verifyOtp: otp,
+        verifyOtpExpires: Date.now() + 1000 * 60 * 60
+    });
+    await user.save();
+
+    await sendMail({ to: email, subject: "Account Verification OTP", text: `Your OTP is: ${otp}` });
+
+    const token = generateToken({ id: user._id });
+    return { user, token };
+};
+
+export const loginUser = async ({ email, password }) => {
+    const user = await userModel.findOne({ email });
+    if (!user) throw new Error("Invalid email");
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) throw new Error("Invalid password");
+
+    const token = generateToken({ id: user._id });
+    return { user, token };
+};
+
+export const resendVerificationOtp = async (userId) => {
+    const user = await userModel.findById(userId);
+    if (!user) throw new Error("User not found");
+    if (user.isVerified) throw new Error("User already verified");
+
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+    user.verifyOtp = otp;
+    user.verifyOtpExpires = Date.now() + 1000 * 60 * 60;
+    await user.save();
+
+    await sendMail({ to: user.email, subject: "Account Verification OTP", text: `Your OTP is: ${otp}` });
+};
+
+export const verifyEmailOtp = async (userId, otp) => {
+    const user = await userModel.findById(userId);
+    if (!user) throw new Error("User not found");
+
+    if (!user.verifyOtp || user.verifyOtp !== otp) throw new Error("Invalid OTP");
+    if (user.verifyOtpExpires < Date.now()) throw new Error("OTP expired");
+
+    user.isVerified = true;
+    user.verifyOtp = "";
+    user.verifyOtpExpires = 0;
+    await user.save();
+};
+
+export const sendResetPasswordOtpService = async (email) => {
+    const user = await userModel.findOne({ email });
+    if (!user) throw new Error("User not found");
+
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+    user.resetPasswordOtp = otp;
+    user.resetPasswordOtpExpires = Date.now() + 1000 * 60 * 15;
+    await user.save();
+
+    const tempToken = generateToken({ email }, "15m");
+
+    await sendMail({ to: email, subject: "Reset Password OTP", text: `Your OTP is: ${otp}` });
+    return tempToken;
+};
+
+export const verifyResetPasswordOtpService = async (email, otp) => {
+    const user = await userModel.findOne({ email });
+    if (!user) throw new Error("User not found");
+
+    if (!user.resetPasswordOtp || user.resetPasswordOtp !== otp) throw new Error("Invalid OTP");
+    if (user.resetPasswordOtpExpires < Date.now()) throw new Error("OTP expired");
+
+    return true;
+};
+
+export const resetPasswordService = async (email, newPassword) => {
+    const user = await userModel.findOne({ email });
+    if (!user) throw new Error("User not found");
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    user.resetPasswordOtp = "";
+    user.resetPasswordOtpExpires = 0;
+    await user.save();
+};
+
+
+4️⃣ controllers/authController.js
+
+import {
+    registerUser,
+    loginUser,
+    resendVerificationOtp,
+    verifyEmailOtp,
+    sendResetPasswordOtpService,
+    verifyResetPasswordOtpService,
+    resetPasswordService
+} from "../services/authService.js";
+
+export const register = async (req, res) => {
+    const { fullname, email, phone, password } = req.body;
+    if (!fullname || !email || !phone || !password) return res.json({ success: false, message: "Missing Details" });
+
+    try {
+        const { user, token } = await registerUser({ fullname, email, phone, password });
+
+        res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', maxAge: 7 * 24 * 60 * 60 * 1000 });
+        res.json({ success: true, message: "OTP sent on mail" });
+
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+};
+
+export const login = async (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) return res.json({ success: false, message: "Email and Password required" });
+
+    try {
+        const { user, token } = await loginUser({ email, password });
+
+        res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', maxAge: 7 * 24 * 60 * 60 * 1000 });
+        res.json({ success: true });
+
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+};
+
+export const logout = async (req, res) => {
+    res.clearCookie('token', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict' });
+    res.json({ success: true, message: "Logged out" });
+};
+
+export const resendVerifyOtp = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        await resendVerificationOtp(userId);
+        res.json({ success: true, message: "Resend the verification otp sent on Email" });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+};
+
+export const verifyEmail = async (req, res) => {
+    const { userId, otp } = req.body;
+    try {
+        await verifyEmailOtp(userId, otp);
+        res.json({ success: true, message: "Email verified successfully" });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+};
+
+export const sendResetPasswordOtp = async (req, res) => {
+    const { email } = req.body;
+    try {
+        const tempToken = await sendResetPasswordOtpService(email);
+
+        res.cookie("tempToken", tempToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', maxAge: 15 * 60 * 1000 });
+        res.json({ success: true, message: "Reset password otp sent on your mail." });
+
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+};
+
+export const verifyResetPasswordOtp = async (req, res) => {
+    const { otp, email } = req.body;
+    try {
+        await verifyResetPasswordOtpService(email, otp);
+        res.json({ success: true, message: "Reset password OTP verified successfully" });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+};
+
+export const resetPassword = async (req, res) => {
+    const { newPassword, confirmNewPassword, email } = req.body;
+    if (!newPassword || !confirmNewPassword || !email) return res.json({ success: false, message: "Email and new password required" });
+    if (newPassword !== confirmNewPassword) return res.json({ success: false, message: "Passwords do not match" });
+
+    try {
+        await resetPasswordService(email, newPassword);
+
+        res.clearCookie('tempToken', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict' });
+        res.json({ success: true, message: "Password has been reset successfully" });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+};
+
+
+✅ Now your architecture is clean:
+
+Controllers → only handle req and res.
+
+Services → business logic and DB queries.
+
+Utils → reusable helpers (email, JWT).
