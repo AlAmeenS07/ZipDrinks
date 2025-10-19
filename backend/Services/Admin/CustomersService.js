@@ -5,7 +5,7 @@ export const getCustomersService = async (req, res) => {
 
         const { search = '', status = 'All', page = 1, limit = 5 } = req.query;
 
-        const query = {};
+        const query = { isAdmin : false };
 
         if (search) {
             query.$or = [
@@ -21,12 +21,12 @@ export const getCustomersService = async (req, res) => {
         }
 
         const skip = (parseInt(page) - 1) * parseInt(limit);
-        const total = await userModel.countDocuments(query);
+        const total = await userModel.countDocuments();
 
-        let customers = await userModel.find(query).skip(skip).limit(limit)
+        let customers = await userModel.find(query).skip(skip).limit(limit).sort({createdAt : -1})
 
         res.json({ success: true, message: "Customer fetched Successfully", 
-            customers , total , totalPages :  Math.ceil(total / limit) , currentPage : parseInt(page) })
+            customers , total , totalPages :  Math.ceil(total / parseInt(limit)) , currentPage : parseInt(page) })
 
     } catch (error) {
         return res.json({ success: false, message: error.message })
@@ -36,9 +36,25 @@ export const getCustomersService = async (req, res) => {
 
 export const blockUnblockCustomerService = async (req, res) => {
 
-    const { userId, action } = req.body;
+    const { customerId } = req.params;
 
     try {
+
+        let customer = await userModel.findById(customerId);
+
+        if(!customer){
+            return res.json({success : false , message : "User not Found !"})
+        }
+
+        if(customer.isBlocked){
+            customer.isBlocked = false
+        }else{
+            customer.isBlocked = true
+        }
+
+        await customer.save()
+
+        res.json({success : true , message : "Updated Successfully" , customer})
 
     } catch (error) {
         return res.json({ success: false, message: error.message })

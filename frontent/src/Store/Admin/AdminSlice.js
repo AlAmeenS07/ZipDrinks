@@ -1,21 +1,19 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import axiosInstance from "../../Helper/AxiosInstance";
-import { toast } from "react-toastify";
 
 const initialState = {
     loading: false,
     isLoggedIn: false,
-    adminData: null,
+    adminData: JSON.parse(localStorage.getItem("adminData")) || null,
     error: null,
 }
 
 
-export const fetchAdminData = createAsyncThunk(
-    'admin/fetchAdminData',
-    async (_, { rejectWithValue }) => {
+export const fetchAdminData = createAsyncThunk('admin/fetchAdminData', async (_, { rejectWithValue }) => {
         try {
             const response = await axiosInstance.get('/api/admin/data');
             if (response.data.success && response.data.userData.isAdmin) {
+                localStorage.setItem("adminData", JSON.stringify(response.data.userData));
                 return response.data.userData;
             } else {
                 return rejectWithValue("Admin not authorized");
@@ -41,6 +39,7 @@ const adminSlice = createSlice({
             state.loading = false;
             state.isLoggedIn = false;
             state.error = null;
+            localStorage.removeItem("adminData")
         }
     },
     extraReducers: (builder) => {
@@ -57,7 +56,6 @@ const adminSlice = createSlice({
             .addCase(fetchAdminData.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
-                toast.error(action.payload);
             });
     }
 

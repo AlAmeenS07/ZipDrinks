@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { Heart, ShoppingCart, User, Menu, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux"
-import { toast } from 'react-toastify';
 import { logout } from '../Store/user/UserSlice';
 import axiosInstance from '../Helper/AxiosInstance';
 
@@ -29,13 +28,10 @@ const Navbar = () => {
             let res = await axiosInstance.post(backendurl + '/api/auth/logout');
             if (res.data.success) {
                 dispatch(logout())
-                navigate("/login")
-                setDropDown(!dropDown)
-            } else {
-                toast.error(res.data.message)
             }
+
         } catch (error) {
-            toast.error(error.message)
+            console.log(error.message)
         }
     }
 

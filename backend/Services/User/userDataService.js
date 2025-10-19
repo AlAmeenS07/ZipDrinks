@@ -10,7 +10,11 @@ export const getUserDataService = async (req, res) => {
       return res.json({ success: false, message: "User not found" });
     }
 
-    return res.json({success: true,userData: { fullname: user.fullname, email: user.email, isAdmin: user.isAdmin,
+    if(user.isBlocked){
+      return res.json({success : false , message : "You are blocked by admin !"})
+    }
+
+    return res.json({success: true, userData: { fullname: user.fullname, email: user.email, isAdmin: user.isAdmin,
         isBlocked: user.isBlocked, isVerified: user.isVerified}});
         
   } catch (error) {

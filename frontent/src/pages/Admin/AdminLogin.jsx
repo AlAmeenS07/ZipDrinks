@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Eye, EyeOff, HelpCircle } from 'lucide-react'
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
@@ -19,22 +19,22 @@ const AdminLogin = () => {
 
   const { register, formState: { errors }, handleSubmit, reset } = useForm()
 
-  useEffect(() => {
-    // async function checkAdmin() {
-    //   try {
-    //     let { data } = await axiosInstance.get(backendurl + '/api/admin/data');
+  // useEffect(() => {
+  //   // async function checkAdmin() {
+  //   //   try {
+  //   //     let { data } = await axiosInstance.get(backendurl + '/api/admin/data');
 
-    //     if (data.success) {
-    //       dispatch(adminSuccess(data.userData))
-    //       navigate("/admin/dashboard")
-    //     }
-    //   } catch (error) {
-    //     toast.error(error.message)
-    //   }
-    // }
-    // checkAdmin()
-    dispatch(fetchAdminData())
-  }, [dispatch])
+  //   //     if (data.success) {
+  //   //       dispatch(adminSuccess(data.userData))
+  //   //       navigate("/admin/dashboard")
+  //   //     }
+  //   //   } catch (error) {
+  //   //     toast.error(error.message)
+  //   //   }
+  //   // }
+  //   // checkAdmin()
+  //   dispatch(fetchAdminData())
+  // }, [dispatch])
 
   async function adminLoginSubmit(data) {
     dispatch(loadStart())
@@ -43,9 +43,7 @@ const AdminLogin = () => {
       let res = await axiosInstance.post(backendurl + '/api/admin/login', { email: data.email, password: data.password })
 
       if (res.data.success) {
-        // let admin = await axiosInstance.get(backendurl + '/api/admin/data');
-        // console.log(admin)
-        dispatch(fetchAdminData())
+        await dispatch(fetchAdminData())
         toast.success("Welcome Admin")
         navigate('/admin/dashboard', { replace: true })
       } else {
@@ -124,13 +122,6 @@ const AdminLogin = () => {
                   </button>
                 </div>
               </div>
-{/* 
-              <button
-                type="submit"
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 rounded-lg transition-colors shadow-sm"
-              >
-                Log In
-              </button> */}
 
               <button
                 type="submit"
