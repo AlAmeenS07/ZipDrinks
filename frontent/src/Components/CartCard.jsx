@@ -128,7 +128,6 @@ const CartCard = ({ cartItems }) => {
                 <div className="flex justify-between items-center text-sm sm:text-base">
                     <span className="text-gray-600 uppercase">Total Amount</span>
                     <div className="flex gap-4">
-                        {/* <span className="text-gray-800">INR {cartItems?.items?.reduce((sum , item)=> sum + item.subTotal , 0).toFixed(0)}</span> */}
                         <span className="text-gray-800 font-medium">₹ {cartItems?.totalAmount.toFixed(2)}</span>
                     </div>
                 </div>

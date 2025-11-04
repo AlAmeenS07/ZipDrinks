@@ -29,7 +29,7 @@ const Profile = () => {
                     Welcome {user?.fullname} !
                 </h2>
 
-                {/* Profile icon/image below welcome with black background */}
+
                 <div className="mx-auto w-24 h-24 bg-black rounded-full overflow-hidden flex justify-center items-center mb-10 z-10 relative">
                     {user?.profileImage ? (
                         <img src={user.profileImage} alt="Profile" className="w-full h-full object-cover" />

@@ -77,19 +77,17 @@ export default function Address() {
 
                 <div className="max-w-5xl mx-auto">
                     <div className="bg-white rounded-3xl shadow-2xl p-6 sm:p-8 lg:p-12">
-                        {/* Header */}
+
                         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-8 sm:mb-10">
                             Delivery Address
                         </h1>
 
-                        {/* Address Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4 sm:gap-6 mb-8">
                             {addresses?.map((address) => (
                                 <div
                                     key={address._id}
                                     className="bg-gray-50 border-2 border-gray-200 rounded-2xl p-5 sm:p-6 hover:shadow-lg hover:border-purple-400 hover:-translate-y-1 transition-all duration-300 relative"
                                 >
-                                    {/* Card Header */}
                                     <div className="flex justify-between items-start mb-4">
                                         <div className="flex-1">
                                             <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
@@ -104,7 +102,6 @@ export default function Address() {
                                         </Link>
                                     </div>
 
-                                    {/* Address Details */}
                                     <div className="text-sm sm:text-base text-gray-700 leading-relaxed mb-4">
                                         <p>{address.address}</p>
                                         <p>{address.district}</p>
@@ -114,7 +111,6 @@ export default function Address() {
                                         <p className="font-medium">{address.state}</p>
                                     </div>
 
-                                    {/* Card Footer */}
                                     <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                                         {!address.isDefault && <div></div>}
                                         <button
@@ -128,7 +124,6 @@ export default function Address() {
                             ))}
                         </div>
 
-                        {/* Add New Address Button */}
                         <div className="flex justify-center">
                             <Link to={"/profile/address/add-address"} className="bg-black text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-semibold hover:bg-gray-800 transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105">
                                 <Plus className="w-5 h-5" />

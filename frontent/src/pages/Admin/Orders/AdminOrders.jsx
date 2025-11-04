@@ -126,7 +126,6 @@ export default function AdminOrders() {
             </div>
           </div>
 
-          {/* Tabs and Search */}
           <div className="bg-white rounded-lg shadow-sm mb-4">
             <div className="border-b border-gray-200">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4">
@@ -165,7 +164,6 @@ export default function AdminOrders() {
               </div>
             </div>
 
-            {/* Action Bar */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 border-b border-gray-200">
               <div className="flex items-center gap-2">
                 <label className="text-sm text-gray-700 font-medium">Select Date:</label>
@@ -192,7 +190,6 @@ export default function AdminOrders() {
               </div>
             </div>
 
-            {/* Table Section with Loader + Empty */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
               {loading ? (
                 <div className="flex justify-center items-center py-20">

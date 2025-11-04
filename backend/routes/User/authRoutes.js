@@ -32,7 +32,7 @@ authRouter.get('/verify-temptoken' , verifyTempToken , verifyTemp)
 authRouter.post('/reset-password' , verifyTempToken , resetPassword)
 authRouter.get('/is-auth' , userAuth , isAuth)
 authRouter.get('/google' , passport.authenticate('google', {scope : ['profile' , 'email']}));
-authRouter.get('/google/callback' , passport.authenticate('google' , {session : false , failureRedirect: `${process.env.FRONTEND_URL}/signup`}) , googleSignIn)
+authRouter.get('/google/callback' , passport.authenticate('google' , {session: false, failureRedirect: `${process.env.FRONTEND_URL}/login?error=google`}) , googleSignIn)
 
 
 export default authRouter

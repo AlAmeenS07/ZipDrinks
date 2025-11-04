@@ -50,7 +50,6 @@ const OrderDetailsInfo = ({ order }) => {
           </div>
         </div>
 
-        {/* Customer Info */}
         <div className="space-y-4">
           <h3 className="text-sm font-semibold text-gray-900 mb-3">Customer</h3>
           <div className="flex items-start gap-3">

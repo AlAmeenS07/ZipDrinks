@@ -4,7 +4,7 @@ import Login from "./pages/authentication/Login"
 import Signup from "./pages/authentication/Signup"
 import EmailVerify from "./pages/authentication/EmailVerify"
 import Navbar from "./Components/Navbar"
-import { toast, ToastContainer } from "react-toastify"
+import { ToastContainer } from "react-toastify"
 import { useDispatch, useSelector } from "react-redux"
 import { loadingEnd, loginStart, loginSuccess, logout, otpVerified } from "./Store/user/UserSlice"
 import { useEffect } from "react"
@@ -67,37 +67,42 @@ function App() {
   }, [])
 
   useEffect(() => {
-    dispatch(fetchCart())
-  }, [isLoggedIn, dispatch])
+    if(!hideNavbar && isLoggedIn){
+      dispatch(fetchCart())
+    }
+  }, [isLoggedIn, dispatch , hideNavbar])
 
   useEffect(() => {
-    async function getUser() {
-      dispatch(loginStart())
-      try {
+    if (!hideNavbar) {
 
-        let user = await axiosInstance.get(backendUrl + '/api/user/data')
+      async function getUser() {
+        dispatch(loginStart())
+        try {
 
-        if (user.data.success) {
-          if (user.data.userData.isVerified) {
-            dispatch(loginSuccess(user.data.userData))
-            dispatch(otpVerified())
+          let user = await axiosInstance.get(backendUrl + '/api/user/data')
+
+          if (user.data.success) {
+            if (user.data.userData.isVerified) {
+              dispatch(loginSuccess(user.data.userData))
+              dispatch(otpVerified())
+            }
+          } else {
+            let res = await axiosInstance.post(backendUrl + '/api/auth/logout');
+            if (res.data.success) {
+              dispatch(logout())
+            }
           }
-        } else {
-          let res = await axiosInstance.post(backendUrl + '/api/auth/logout');
-          if (res.data.success) {
-            dispatch(logout())
-          }
+
+        } catch (error) {
+          console.log(error.message)
         }
-
-      } catch (error) {
-        toast.error(error.message)
+        finally {
+          dispatch(loadingEnd())
+        }
       }
-      finally {
-        dispatch(loadingEnd())
-      }
+      getUser()
     }
-    getUser()
-  }, [])
+  }, [hideNavbar])
 
 
   return (

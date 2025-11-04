@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Upload, X, Plus, Trash2 } from 'lucide-react';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { useFieldArray, useForm, Watch } from 'react-hook-form';
 import axios from 'axios';
 import axiosInstance from '../../Helper/AxiosInstance';
 import { toast } from 'react-toastify';
@@ -10,8 +10,6 @@ import { useNavigate } from 'react-router-dom';
 import { Loader } from 'react-feather';
 
 const ProductForm = ({ productEditSubmit, product }) => {
-
-    console.log(product)
 
     const [categories, setCategories] = useState([])
     const [images, setImages] = useState([]);
@@ -81,7 +79,7 @@ const ProductForm = ({ productEditSubmit, product }) => {
                 life: product?.life || ""
             })
         }
-        if(product?.coverImage){
+        if (product?.coverImage) {
             setMainImageIndex(product.images.indexOf(product.coverImage))
         }
         if (product?.images?.length > 0) {
@@ -192,7 +190,11 @@ const ProductForm = ({ productEditSubmit, product }) => {
                         <input
                             type="text"
                             placeholder="Enter product name"
-                            {...register("name", { required: { value: true, message: "Product name is required !" } })}
+                            {...register("name", {
+                                required: "Product name is required!",
+                                maxLength: { value: 50, message: "Maximum 50 characters allowed!" },
+                                minLength: { value: 3, message: "Minimum 3 characters required!" }
+                            })}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                         />
                         {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
@@ -225,7 +227,12 @@ const ProductForm = ({ productEditSubmit, product }) => {
                             <input
                                 type="text"
                                 placeholder="20% or 50/-"
-                                {...register("offer", { pattern: { value: /^(100(\.0+)?%?|[0-9]?\d(\.\d+)?%?)$/, message: "Enter a valid offer (e.g. 20 or 20%)" } })}
+                                {...register("offer", {
+                                    pattern: {
+                                        value: /^(\d{1,2}(\.\d+)?%|\d{1,5})$/,
+                                        message: "Enter valid offer (e.g., 20 or 20%)"
+                                    }
+                                })}
                                 className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                             />
                             {errors.offer && <p className="text-red-500 text-sm mt-1">{errors.offer.message}</p>}
@@ -238,7 +245,10 @@ const ProductForm = ({ productEditSubmit, product }) => {
                             <input
                                 type="number"
                                 placeholder="Maximum redeem amount"
-                                {...register("maxRedeem")}
+                                {...register("maxRedeem", {
+                                    min: { value: 0, message: "Cannot be negative!" },
+                                    max: { value: 100000, message: "Too high!" }
+                                })}
                                 className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                             />
                         </div>
@@ -250,8 +260,9 @@ const ProductForm = ({ productEditSubmit, product }) => {
                         </label>
                         <textarea
                             {...register("description", {
-                                required: { value: true, message: "Description is required !" },
-                                minLength: { value: 10, message: "Description must need 10 charecters !" }
+                                required: "Description is required!",
+                                minLength: { value: 10, message: "Minimum 10 characters required!" },
+                                maxLength: { value: 500, message: "Maximum 500 characters allowed!" }
                             })}
                             placeholder="Enter product description"
                             rows="4"
@@ -355,7 +366,7 @@ const ProductForm = ({ productEditSubmit, product }) => {
                                     type="text"
                                     {...register(`variants.${index}.size`, {
                                         required: "Size is required!",
-                                        pattern: { value: /^\d+(\.\d+)?\s*(ml|ML|l|L)$/, message: "Must be valid size!" },
+                                        pattern: { value: /^\d+(\.\d+)?\s*(ml|ML|l|L)$/, message: "Use valid format (e.g., 500ml or 1L)" }
                                     })}
                                     placeholder="e.g., 500ml or 1L"
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
@@ -367,7 +378,11 @@ const ProductForm = ({ productEditSubmit, product }) => {
                                 <label className="block text-xs font-medium text-gray-700 mb-1">Quantity</label>
                                 <input
                                     type="number"
-                                    {...register(`variants.${index}.quantity`, { required: "Quantity is required!" })}
+                                    {...register(`variants.${index}.quantity`, {
+                                        required: "Quantity is required!",
+                                        min: { value: 1, message: "Minimum quantity must be > 0" },
+                                        max: { value: 100000, message: "Too large quantity!" }
+                                    })}
                                     placeholder="120"
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
                                 />
@@ -378,7 +393,11 @@ const ProductForm = ({ productEditSubmit, product }) => {
                                 <label className="block text-xs font-medium text-gray-700 mb-1">Price</label>
                                 <input
                                     type="number"
-                                    {...register(`variants.${index}.price`, { required: "Price is required!", min: { value: 0, message: "Price must be >= 0 !" } })}
+                                    {...register(`variants.${index}.price`, {
+                                        required: "Price is required!",
+                                        min: { value: 0, message: "Price must be >= 0" },
+                                        max: { value: 100000, message: "Maximum 100000 allowed!" }
+                                    })}
                                     placeholder="50"
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
                                 />
@@ -389,7 +408,11 @@ const ProductForm = ({ productEditSubmit, product }) => {
                                 <label className="block text-xs font-medium text-gray-700 mb-1">Sale Price</label>
                                 <input
                                     type="number"
-                                    {...register(`variants.${index}.salePrice`, { required: "Sale Price is required!", min: { value: 0, message: "sale price must be >= 0 !" } })}
+                                    {...register(`variants.${index}.salePrice`, {
+                                        required: "Sale price is required!",
+                                        min: { value: 0, message: "Sale price must be >= 0!" },
+                                        max: { value: 100000, message: "Maximum 100000 allowed!" }
+                                    })}
                                     placeholder="45"
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"
                                 />

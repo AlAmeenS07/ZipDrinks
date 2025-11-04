@@ -16,7 +16,6 @@ const CheckoutAddress = ({ addresses, selectedAddress, setSelectedAddress , setS
               ${isSelected ? 'border-blue-500 shadow-md bg-blue-50' : 'border-gray-200 hover:shadow-lg hover:border-purple-400 hover:-translate-y-1'}
             `}
           >
-            {/* Card Header */}
             <div className="flex justify-between items-start mb-4">
               <div className="flex-1">
                 <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
@@ -31,13 +30,12 @@ const CheckoutAddress = ({ addresses, selectedAddress, setSelectedAddress , setS
                     e.stopPropagation()
                     setShowAddressForm(true)
                     setEditAddress({ id : address?._id , address})
-                }} // prevent parent click
+                }}
               >
                 <Edit2 className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
               </button>
             </div>
 
-            {/* Address Details */}
             <div className="text-sm sm:text-base text-gray-700 leading-relaxed mb-4">
               <p>{address?.address}</p>
               <p>{address?.district}</p>

@@ -66,7 +66,7 @@ const ProfileEdit = () => {
 
     return (
         <UserProfileMain>
-            {/* Breadcrumb */}
+
             <nav className="text-sm text-gray-500 mb-4" aria-label="breadcrumb">
                 <ol className="list-reset flex">
                     <li>
@@ -101,7 +101,6 @@ const ProfileEdit = () => {
                         <User className="w-16 h-16 text-white" />
                     )}
 
-                    {/* Pen icon overlay */}
                     <div className="absolute bottom-8 right-0 bg-orange-400 rounded-full p-1">
                         <Edit2 className="w-5 h-5 text-black" />
                     </div>
@@ -117,7 +116,6 @@ const ProfileEdit = () => {
 
 
                 <form className="space-y-6 w-full" onSubmit={handleSubmit(onEditSubmit)} noValidate>
-                    {/* Full Name */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                         <input
@@ -133,7 +131,6 @@ const ProfileEdit = () => {
                         />
                     </div>
 
-                    {/* Email */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                         <input

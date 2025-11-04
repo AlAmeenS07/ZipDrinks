@@ -18,16 +18,16 @@ export const addToCartService = async (req, res) => {
 
         const product = await productModel.findOne({ _id: productId, isListed: true });
         if (!product) {
-            return res.status(404).json({ success: false, message: "Product not found!" });
+            return res.json({ success: false, message: "Product not found!" });
         }
 
         const variant = product.variants.find(v => v.sku === sku);
         if (!variant) {
-            return res.status(404).json({ success: false, message: "Product variant not found!" });
+            return res.json({ success: false, message: "Product variant not found!" });
         }
 
         if (variant.quantity <= 0) {
-            return res.status(400).json({ success: false, message: "Product is out of stock!" });
+            return res.json({ success: false, message: "Product is out of stock!" });
         }
 
         let cart = await cartModel.findOne({ userId });

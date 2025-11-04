@@ -17,7 +17,7 @@ export default function Contact() {
         </p>
 
         <div className="space-y-6 text-left">
-          {/* Email */}
+
           <div className="flex items-center gap-4">
             <div className="p-3 bg-gray-100 rounded-full">
               <Mail className="w-6 h-6 text-gray-700" />
@@ -28,7 +28,6 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* Phone */}
           <div className="flex items-center gap-4">
             <div className="p-3 bg-gray-100 rounded-full">
               <Phone className="w-6 h-6 text-gray-700" />
@@ -39,7 +38,6 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* Address */}
           <div className="flex items-center gap-4">
             <div className="p-3 bg-gray-100 rounded-full">
               <MapPin className="w-6 h-6 text-gray-700" />

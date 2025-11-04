@@ -38,7 +38,6 @@ const AddAddress = () => {
     return (
         <UserProfileMain>
             <div className="w-full px-6 sm:px-8 lg:px-10 pt-6">
-                {/* Breadcrumb Section */}
                 <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600 mb-6">
                     <span className="hover:text-black cursor-pointer">Home</span>
                     <span>/</span>
@@ -49,7 +48,6 @@ const AddAddress = () => {
                     <span className="text-black font-medium">Add Address</span>
                 </div>
 
-                {/* Address Form */}
                 <AddressForm addressSubmit={addAddressSubmit}/>
             </div>
         </UserProfileMain>

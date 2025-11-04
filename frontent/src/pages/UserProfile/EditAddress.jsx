@@ -19,7 +19,6 @@ const EditAddress = () => {
                 let {data} = await axiosInstance.get(`/api/user/address/${id}`);
 
                 if(data.success){
-                    data.address.phone = data.address.phone.split(" ")[1]
                     setAddress(data.address)
                 }
                 
@@ -53,7 +52,7 @@ const EditAddress = () => {
     return (
         <UserProfileMain>
             <div className="w-full px-6 sm:px-8 lg:px-10 pt-6">
-                {/* Breadcrumb Section */}
+
                 <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600 mb-6">
                     <span className="hover:text-black cursor-pointer">Home</span>
                     <span>/</span>
@@ -64,7 +63,6 @@ const EditAddress = () => {
                     <span className="text-black font-medium">Edit Address</span>
                 </div>
 
-                {/* Address Form */}
                 <AddressForm addressSubmit={addressEditSubmit} address={address} />
             </div>
         </UserProfileMain>

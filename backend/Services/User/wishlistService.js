@@ -14,7 +14,7 @@ export const addToWishlistService = async(req , res)=>{
 
 
         if(cartItem){
-            return res.status(409).json({success : false , message : "Product already in cart !"})
+            return res.json({success : false , message : "Product already in cart !"})
         }
 
         let addWishlist = await wishlistModel.findOne({ userId })
@@ -26,7 +26,7 @@ export const addToWishlistService = async(req , res)=>{
             const existProduct = await addWishlist.items.some((item)=> item.productId.toString() == productId)
 
             if(existProduct){
-                return res.status(409).json({success : false , message : "Product already exist in wishlist !"})
+                return res.json({success : false , message : "Product already exist in wishlist !"})
             }
 
             addWishlist.items.push({productId})

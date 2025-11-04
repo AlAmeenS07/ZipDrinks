@@ -72,6 +72,7 @@ const OrderDetail = () => {
         const { value: reason } = await Swal.fire({
             title: 'Return Order item',
             input: 'text',
+            text: "Note : Only one return is possible",
             inputLabel: 'Please enter a reason for returning:',
             inputPlaceholder: 'Type your reason here...',
             inputValidator: (value) => {
@@ -101,11 +102,13 @@ const OrderDetail = () => {
         }
     }
 
+    const isReturn = order?.items?.some(i => i.status == "return-requested" || i.status == "returned")
+
     return (
         <UserProfileMain>
             <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
                 <div className="max-w-6xl mx-auto">
-                    {/* Breadcrumb */}
+
                     <nav className="text-sm text-gray-500 mb-4" aria-label="breadcrumb">
                         <ol className="list-reset flex">
                             <li>
@@ -116,7 +119,7 @@ const OrderDetail = () => {
                                 <Link to="/profile" className="text-blue-600 hover:underline">Profile</Link>
                             </li>
                             <li><span className="mx-2">/</span></li>
-                             <li>
+                            <li>
                                 <Link to="/orders" className="text-blue-600 hover:underline">My Orders</Link>
                             </li>
                             <li><span className="mx-2">/</span></li>
@@ -124,14 +127,13 @@ const OrderDetail = () => {
                         </ol>
                     </nav>
 
-                    {/* Main Content */}
                     <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 lg:p-8">
                         <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-6">Order Details</h1>
 
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            {/* Left Section - Products */}
+
                             <div className="lg:col-span-2 space-y-6">
-                                {/* Order Info Banner */}
+
                                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                                     <div className="flex flex-wrap items-center justify-between gap-2">
                                         <div>
@@ -150,7 +152,6 @@ const OrderDetail = () => {
                                     </div>
                                 </div>
 
-                                {/* Products List */}
                                 <div className="space-y-4">
                                     <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                                         <Package className="w-5 h-5" />
@@ -166,7 +167,7 @@ const OrderDetail = () => {
                                             <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4">
 
                                                 <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto flex-1">
-                                                    {/* Product Image */}
+
                                                     <div className="w-24 h-24 flex-shrink-0">
                                                         <img
                                                             src={product?.coverImage}
@@ -175,7 +176,6 @@ const OrderDetail = () => {
                                                         />
                                                     </div>
 
-                                                    {/* Product Details */}
                                                     <div className="flex-1 min-w-0">
                                                         <h3 className="text-base md:text-lg font-medium text-gray-900 mb-2">
                                                             {product?.sku}
@@ -199,30 +199,40 @@ const OrderDetail = () => {
                                                 </div>
 
                                                 <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
-
                                                     {order.orderStatus === "delivered" &&
+                                                        !isReturn &&
                                                         product.status === "delivered" &&
                                                         order.deliveryDate &&
-                                                        new Date().toLocaleDateString() ===
-                                                        new Date(order.deliveryDate).toLocaleDateString() ? (
-                                                        <button
-                                                            onClick={() => handleItemReturn(orderId, product.sku, "return-requested")}
-                                                            className="w-auto px-4 py-2 bg-yellow-500 text-white text-sm font-semibold rounded hover:bg-yellow-600 transition-all shadow-sm"
-                                                        >
-                                                            Return Item
-                                                        </button>
-                                                    )
-                                                        : product.status == "return-requested" ? (
-                                                            (
-                                                                <span className="w-auto px-4 py-2 bg-gray-300 text-gray-600 text-sm font-medium rounded cursor-not-allowed">
-                                                                    Return requested
-                                                                </span>
-                                                            )
-                                                        ) : product.status == "returned" ? (
-                                                            <span className="w-auto px-4 py-2 bg-gray-300 text-gray-600 text-sm font-medium rounded cursor-not-allowed">
-                                                                Returned
-                                                            </span>
-                                                        ) : null}
+                                                        (() => {
+                                                            const now = new Date();
+                                                            const deliveryDate = new Date(order.deliveryDate);
+                                                            const diffHours = (now - deliveryDate) / (1000 * 60 * 60);
+
+                                                            if (diffHours <= 12) {
+                                                                return (
+                                                                    <button
+                                                                        onClick={() =>
+                                                                            handleItemReturn(orderId, product.sku, "return-requested")
+                                                                        }
+                                                                        className="w-auto px-4 py-2 bg-yellow-500 text-white text-sm font-semibold rounded hover:bg-yellow-600 transition-all shadow-sm"
+                                                                    >
+                                                                        Return Item
+                                                                    </button>
+                                                                );
+                                                            }
+
+                                                            return null;
+                                                        })()}
+
+                                                    {product.status == "return-requested" ? (
+                                                        <span className="w-auto px-4 py-2 bg-gray-300 text-gray-600 text-sm font-medium rounded cursor-not-allowed">
+                                                            Return requested
+                                                        </span>
+                                                    ) : product.status == "returned" ? (
+                                                        <span className="w-auto px-4 py-2 bg-gray-300 text-gray-600 text-sm font-medium rounded cursor-not-allowed">
+                                                            Returned
+                                                        </span>
+                                                    ) : null}
 
                                                     {product.status === "processing" || product.status === "pending" ? (
                                                         <button
@@ -237,6 +247,7 @@ const OrderDetail = () => {
                                                         </span>
                                                     ) : null}
                                                 </div>
+
                                             </div>
                                         </div>
                                     ))}
@@ -246,9 +257,8 @@ const OrderDetail = () => {
 
                             </div>
 
-                            {/* Right Section - Order Summary & Details */}
                             <div className="space-y-6">
-                                {/* Shipping Address */}
+
                                 <div className="border rounded-lg p-4">
                                     <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                                         <MapPin className="w-5 h-5" />
@@ -264,7 +274,6 @@ const OrderDetail = () => {
                                     </div>
                                 </div>
 
-                                {/* Payment Method */}
                                 <div className="border rounded-lg p-4">
                                     <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                                         <CreditCard className="w-5 h-5" />
@@ -273,7 +282,6 @@ const OrderDetail = () => {
                                     <p className="text-sm text-gray-700 font-medium">{order?.paymentMethod}</p>
                                 </div>
 
-                                {/* Order Summary */}
                                 <div className="border rounded-lg p-4">
                                     <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Summary</h3>
                                     <div className="space-y-3">
@@ -296,16 +304,12 @@ const OrderDetail = () => {
                                     </div>
                                 </div>
 
-                                {/* Action Buttons */}
                                 <div className="space-y-3">
-                                    {/* {order.orderStatus == "delivered" ? ( */}
                                     <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors"
                                         onClick={() => window.open(`${backendUrl}/api/order/invoice/${orderId}`, "_blank")}>
                                         <Printer className="w-4 h-4" />
                                         <span>Download Invoice</span>
                                     </button>
-                                    {/* )
-                                        : ""} */}
                                 </div>
                             </div>
                         </div>

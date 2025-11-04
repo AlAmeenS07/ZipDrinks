@@ -69,7 +69,6 @@ const Wishlist = () => {
         </div>
       </div>
 
-      {/* Wishlist Items */}
       {wishlist?.items?.length === 0 || !wishlist ? (
         <p className="text-center text-gray-600 text-lg">No Products Found</p>
       ) : (
@@ -106,16 +105,6 @@ const Wishlist = () => {
         </div>
       )}
 
-      {/* Pagination */}
-      {/* {wishlist?.items?.length > 0 && (
-        <div className="flex justify-center items-center gap-2">
-          <button className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-100">1</button>
-          <button className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-100">2</button>
-          <button className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-100">3</button>
-          <span className="px-3 py-1">...</span>
-          <button className="px-3 py-1 border border-gray-300 rounded-md hover:bg-gray-100">5</button>
-        </div>
-      )} */}
     </div>
   )
 }

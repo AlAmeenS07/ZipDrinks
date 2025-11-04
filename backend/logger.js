@@ -2,13 +2,13 @@ import winston from "winston";
 import fs from "fs";
 import path from "path";
 
-// Create "logs" folder if it doesn't exist
+// Create logs folder if it doesn't exist
 const logDir = "logs";
 if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir);
 }
 
-// Define log format
+// log format
 const logFormat = winston.format.combine(
   winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
   winston.format.printf(
@@ -16,7 +16,7 @@ const logFormat = winston.format.combine(
   )
 );
 
-// Create logger instance
+// logger instance
 const logger = winston.createLogger({
   level: "info",
   format: logFormat,

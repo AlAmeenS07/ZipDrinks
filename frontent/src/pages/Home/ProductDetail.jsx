@@ -86,7 +86,7 @@ const ProductDetail = () => {
             }
 
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error?.response?.data?.message)
         }
     }
 
@@ -152,14 +152,6 @@ const ProductDetail = () => {
             toast.error(error.message)
         }
     }
-
-    // if (loading) {
-    //     return (
-    //         <div className="flex justify-center items-center py-20">
-    //             <Loader className="animate-spin text-gray-600" size={30} />
-    //         </div>
-    //     )
-    // }
 
     return (
         <>

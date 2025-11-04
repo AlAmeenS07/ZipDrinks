@@ -9,7 +9,7 @@ const AddressForm = ({ addressSubmit, address , checkout }) => {
     const { register, formState: { errors }, handleSubmit, reset } = useForm({
         defaultValues: {
             fullname: address?.fullname || "",
-            phone: address?.phone.split(' ')[1] || "",
+            phone: address?.phone.split(" ")[1] || "",
             address: address?.address || "",
             district: address?.district || "",
             state: address?.state || "",
@@ -22,7 +22,7 @@ const AddressForm = ({ addressSubmit, address , checkout }) => {
         if (address && Object.keys(address).length > 0) {
             reset({
                 fullname: address?.fullname || "",
-                phone: address?.phone.split(' ')[1] || "",
+                phone: address?.phone.split(" ")[1] || "",
                 address: address?.address || "",
                 district: address?.district || "",
                 state: address?.state || "",
@@ -39,16 +39,13 @@ const AddressForm = ({ addressSubmit, address , checkout }) => {
         <div className="w-full bg-gray-50 py-10 px-4 sm:px-6 lg:px-12">
             <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8 lg:p-12 border border-gray-100">
 
-                {/* Header Section */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b pb-5 mb-8">
                     <h1 className="text-2xl font-semibold text-gray-900">{address ? "Edit Address" : "Add New Address"}</h1>
                     <h2 className="text-lg font-medium text-gray-600 mt-2 sm:mt-0">Personal Information</h2>
                 </div>
 
-                {/* Form Section */}
                 <form className="max-w-5xl mx-auto space-y-6" onSubmit={handleSubmit(addressSubmit)} noValidate>
 
-                    {/* Full Name */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                         <input
@@ -64,7 +61,6 @@ const AddressForm = ({ addressSubmit, address , checkout }) => {
                         {errors.fullname && <p className='text-red-500 text-sm mt-1'>{errors.fullname.message}</p>}
                     </div>
 
-                    {/* Phone Number */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
                         <div className="flex gap-2">
@@ -85,7 +81,6 @@ const AddressForm = ({ addressSubmit, address , checkout }) => {
                         </div>
                     </div>
 
-                    {/* Address */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
                         <textarea
@@ -101,7 +96,6 @@ const AddressForm = ({ addressSubmit, address , checkout }) => {
                         {errors.address && <p className='text-red-500 text-sm mt-1'>{errors.address.message}</p>}
                     </div>
 
-                    {/* Two-Column Fields */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">District</label>
@@ -161,7 +155,6 @@ const AddressForm = ({ addressSubmit, address , checkout }) => {
                         </div>
                     </div>
 
-                    {/* Buttons */}
                     <div className="flex justify-end gap-4 pt-6">
                         {checkout ? "" : (
                         <Link to={"/profile/address"}

@@ -1,16 +1,3 @@
-// import React from 'react'
-// import AdminMain from '../../../Components/Admin/AdminMain'
-
-// const AdminAddProducts = () => {
-//   return (
-//     <AdminMain>
-//         <h1>Add Products</h1>
-//     </AdminMain>
-//   )
-// }
-
-// export default AdminAddProducts
-
 
 import React from 'react';
 import ProductForm from '../../../Components/Admin/ProductForm';

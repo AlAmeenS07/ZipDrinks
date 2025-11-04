@@ -61,7 +61,7 @@ const Shop = () => {
                 limit: itemsPerPage,
             };
             dispatch(productFetch(params));
-        }, 300);
+        }, 500);
         return () => {
             clearTimeout(timer)
         }

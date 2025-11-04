@@ -68,12 +68,10 @@ const Cart = () => {
 
                 <CartCard cartItems={cartItems} />
 
-                {/* Footer Message */}
                 <div className="px-4 sm:px-6 py-3 bg-gray-50 text-center text-xs sm:text-sm text-gray-600">
                     shipping, taxes, and discount codes calculated at checkout.
                 </div>
 
-                {/* Action Buttons */}
                 <div className="p-4 sm:p-6 space-y-3">
                     <Link to={"/checkout"} className="block w-full bg-gray-900 text-white text-center py-3 rounded hover:bg-black transition-colors text-sm sm:text-base font-medium">
                         Proceed to checkout

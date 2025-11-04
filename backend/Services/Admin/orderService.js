@@ -198,13 +198,13 @@ export const approveOrderItemReturnService = async (req, res) => {
     item.status = status || "returned";
     item.returnApprove = true;
 
-    order.subTotal = order.items
-      .filter(i => i.status === "delivered")
-      .reduce((sum, i) => sum + i.subTotal, 0);
+    // order.subTotal = order.items
+    //   .filter(i => i.status === "delivered")
+    //   .reduce((sum, i) => sum + i.subTotal, 0);
 
-    order.deliveryFee = order.subTotal < 100 ? 70 : 0;
-    order.taxAmount = Math.floor((order.subTotal + order.deliveryFee) * 0.18);
-    order.totalAmount = order.subTotal + order.deliveryFee + order.taxAmount;
+    // order.deliveryFee = order.subTotal < 100 ? 70 : 0;
+    // order.taxAmount = Math.floor((order.subTotal + order.deliveryFee) * 0.18);
+    // order.totalAmount = order.subTotal + order.deliveryFee + order.taxAmount;
 
     await order.save();
 

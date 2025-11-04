@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { Eye, EyeOff, HelpCircle } from 'lucide-react'
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-// import { adminSuccess, loadEnd, loadStart } from '../../Store/Admin/AdminSlice.js';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axiosInstance from '../../Helper/AxiosInstance.js';
@@ -34,7 +33,7 @@ const AdminLogin = () => {
       }
 
     } catch (error) {
-      console.log(error.message)
+      toast.error(error?.response?.data.message)
     }
     finally {
       dispatch(loadEnd())
@@ -122,8 +121,6 @@ const AdminLogin = () => {
                   "Log In"
                 )}
               </button>
-
-
             </form>
 
           </div>

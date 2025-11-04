@@ -221,21 +221,27 @@ export const cancelOrderitemService = async (req, res) => {
         item.status = status || "cancelled";
         item.cancelReason = reason;
 
-        let activeItems = order.items.filter((item) => item.status !== "cancelled")
-        order.subTotal = activeItems.reduce((sum, item) => sum + item.quantity * item.salePrice, 0)
-        order.deliveryFee = order.subTotal < 100 ? 70 : 0
-        order.taxAmount = Math.floor((order.subTotal + order.deliveryFee) * 0.18)
-        order.totalAmount = order.subTotal + order.taxAmount + order.deliveryFee
+
+        const allCancelled = order.items.every((i) => i.status === "cancelled");
+        if (allCancelled) {
+            order.orderStatus = "cancelled";
+            order.subTotal = order.items.reduce((sum, item) => sum + item.quantity * item.salePrice, 0)
+            order.deliveryFee = order.subTotal < 100 ? 70 : 0
+            order.taxAmount = Math.floor((order.subTotal + order.deliveryFee) * 0.18)
+            order.totalAmount = order.subTotal + order.taxAmount + order.deliveryFee
+        }
+        else {
+            let activeItems = order.items.filter((item) => item.status !== "cancelled")
+            order.subTotal = activeItems.reduce((sum, item) => sum + item.quantity * item.salePrice, 0)
+            order.deliveryFee = order.subTotal < 100 ? 70 : 0
+            order.taxAmount = Math.floor((order.subTotal + order.deliveryFee) * 0.18)
+            order.totalAmount = order.subTotal + order.taxAmount + order.deliveryFee
+        }
 
         if (order.paymentMethod == "COD") {
             if (order.transactions) {
                 order.transactions[0].amount = order.totalAmount
             }
-        }
-
-        const allCancelled = order.items.every((i) => i.status === "cancelled");
-        if (allCancelled) {
-            order.orderStatus = "cancelled";
         }
 
         await order.save();
@@ -301,6 +307,16 @@ export const returnOrderItemService = async (req, res) => {
 
         item.status = status || "return-requested"
         item.returnReason = reason
+
+        let allReturned = order.items.every(i => i.status == "return-requested")
+
+        if (allReturned) {
+            order.orderStatus = status || "return-requested"
+            for (let item of order.items) {
+                item.status = status || "return-requested"
+                item.returnReason = reason
+            }
+        }
 
         await order.save()
 
@@ -393,48 +409,3 @@ export const downloadOrderInvoiceService = async (req, res) => {
     }
 };
 
-// {
-//   address: {
-//     fullname: 'Al Ameen S Allu',
-//     phone: '+91 9658471143',
-//     address: 'Dharul Ameen , 101 , Pazhaveed',
-//     district: 'Alappuzha',
-//     state: 'Kerala',
-//     landmark: 'Reliance',
-//     pincode: '688003'
-//   },
-//   products: [
-//     {
-//       productId: '68f33aa2eaf9ca32b8af501b',
-//       sku: 'COCACOLA-500ML',
-//       quantity: 1,
-//       subTotal: 45,
-//       addedAt: '2025-10-28T07:29:23.766Z',
-//       price: 50,
-//       salePrice: 45,
-//       category: 'Soft Drink',
-//       size: '500ml',
-//       appliedOffer: '10%',
-//       name: 'Coca Cola'
-//     },
-//     {
-//       productId: '68f514c32fa4bab1d3d3a131',
-//       sku: 'GREENVALLEY-1L',
-//       quantity: 2,
-//       subTotal: 50,
-//       addedAt: '2025-10-28T07:29:33.926Z',
-//       price: 30,
-//       salePrice: 25,
-//       category: 'water',
-//       size: '1 L',
-//       appliedOffer: '₹5 Flat',
-//       name: 'Green Valley'
-//     }
-//   ],
-//   subtotal: 95,
-//   deliveryFee: 70,
-//   taxAmount: 30,
-//   totalAmount: 195,
-//   paymentMethod: 'COD',
-//   userId: '68f7087a62f0c283d188d84e'
-// }

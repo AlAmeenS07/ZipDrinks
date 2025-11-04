@@ -121,7 +121,7 @@ export default function AdminOrderDetail() {
     <AdminMain>
       <div className="min-h-screen bg-gray-50 p-4 md:p-6">
         <div className="max-w-7xl mx-auto">
-          {/* Header */}
+
           <div className="mb-6">
             <h1 className="text-2xl font-bold text-gray-900 mb-1">Order Details</h1>
             <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -129,11 +129,10 @@ export default function AdminOrderDetail() {
             </div>
           </div>
 
-          {/* Order Header Info */}
           <OrderDetailsInfo order={order} />
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-            {/* Order List */}
+
             <div className="lg:col-span-2 bg-white rounded-lg shadow-sm">
               <div className="p-6 border-b border-gray-200 flex items-center gap-2">
                 <h3 className="text-lg font-semibold text-gray-900">Order List</h3>
@@ -177,7 +176,7 @@ export default function AdminOrderDetail() {
                                   : "bg-gray-100 text-gray-700"
                               }`}
                             onClick={() => {
-                              if (item.status === "cancelled" || item.status === "return-requested") {
+                              if (item.status === "cancelled" || item.status === "return-requested" || item.status == "returned") {
                                 setSelectedItem(item);
                                 setShowStatusModal(true);
                               }
@@ -198,12 +197,12 @@ export default function AdminOrderDetail() {
                   <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
                     <div className="bg-white p-6 rounded-lg shadow-md w-[90%] max-w-md">
                       <h2 className="text-lg font-semibold mb-3 capitalize">
-                        {selectedItem.status === "cancelled" ? "Cancelled Item" : "Return Request"}
+                        {selectedItem.status === "cancelled" ? "Cancelled Item" : selectedItem.status === "returned" ? "Returned Item" : "Return Request"}
                       </h2>
 
                       <p className="text-sm mb-3 bg-gray-50 p-3 rounded">
                         <strong>Reason:</strong>{" "}
-                        {selectedItem.status === "cancelled" ? selectedItem.cancelReason : selectedItem.returnReason || "No reason provided."}
+                        {selectedItem.status === "cancelled" ? selectedItem.cancelReason : selectedItem.status == "returned" ? selectedItem.returnReason :  selectedItem.returnReason || "No reason provided."}
                       </p>
 
                       {selectedItem.status === "return-requested" && (
@@ -217,7 +216,6 @@ export default function AdminOrderDetail() {
                         </div>
                       )}
 
-                      {/* Footer */}
                       <div className="flex justify-end mt-4">
                         <button
                           className="px-4 py-2 text-sm bg-gray-200 rounded hover:bg-gray-300"
@@ -271,7 +269,6 @@ export default function AdminOrderDetail() {
               </div>
             </div>
 
-            {/* Order Status Section */}
             <OrderStatus order={order} />
 
               {order.orderStatus == "return-requested" ?
@@ -286,7 +283,6 @@ export default function AdminOrderDetail() {
                     {order?.items.find(i => i.status == "return-requested").returnReason || "No reason provided."}
                   </p>
 
-                  {/* <div className="flex justify-end gap-3"> */}
                   <button
                     className="px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700"
                     onClick={()=> approveOrderReturn(orderId , "returned")}>

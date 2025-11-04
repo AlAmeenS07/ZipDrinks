@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import { useDispatch, useSelector } from 'react-redux'
@@ -8,6 +8,10 @@ import { Loader } from "react-feather"
 import axiosInstance from '../../Helper/AxiosInstance'
 
 const Login = () => {
+
+    const [googleError] = useSearchParams()
+
+    const queryError = googleError.get("error");
 
     const navigate = useNavigate()
 
@@ -49,6 +53,7 @@ const Login = () => {
 
                     <div className="space-y-6">
                         <form onSubmit={handleSubmit(loginSubmit)} noValidate>
+                            { queryError && <p className='text-red-500 text-center'>Error : {queryError}</p> }
                             <div>
                                 <label className="block text-sm font-medium text-neutral-700 mb-2">
                                     Email

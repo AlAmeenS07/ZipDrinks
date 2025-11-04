@@ -54,7 +54,7 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password){
+  if (!email || !password) {
     return res.status(400).json({ success: false, message: "Email and Password are required!" });
   }
 
@@ -64,7 +64,7 @@ export const loginUser = async (req, res) => {
       return res.status(404).json({ success: false, message: "User doesn't exist!" });
     }
 
-    if (!user.password){
+    if (!user.password) {
       return res.status(400).json({ success: false, message: "You are logged in using Google" });
     }
 
@@ -73,11 +73,11 @@ export const loginUser = async (req, res) => {
       return res.status(401).json({ success: false, message: "Invalid Password" });
     }
 
-    if (!user.isVerified){
+    if (!user.isVerified) {
       return res.status(403).json({ success: false, message: "User is not Verified" });
     }
 
-    if (user.isBlocked){
+    if (user.isBlocked) {
       return res.status(403).json({ success: false, message: "You are blocked by admin!" });
     }
 
@@ -331,6 +331,6 @@ export const googleSignInService = async (req, res) => {
 
     return res.redirect(`${process.env.FRONTEND_URL}/google-callback`);
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    return res.redirect(`${process.env.FRONTENT_URL}/login?error=${error.message}`)
   }
 };

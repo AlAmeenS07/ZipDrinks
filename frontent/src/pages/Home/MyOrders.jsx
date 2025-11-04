@@ -102,6 +102,7 @@ const MyOrders = () => {
     async function handleReturn(orderId, status) {
         const { value: reason } = await Swal.fire({
             title: 'Return Order',
+            text: "Note : Only one return is possible",
             input: 'text',
             inputLabel: 'Please enter a reason for returning:',
             inputPlaceholder: 'Type your reason here...',
@@ -165,12 +166,10 @@ const MyOrders = () => {
                         </ol>
                     </nav>
 
-                    {/* Page Title */}
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-                        {/* Left side — Title */}
+
                         <h1 className="text-3xl font-semibold mb-3 sm:mb-0">My Orders</h1>
 
-                        {/* Right side — Search */}
                         <div className="relative w-full sm:w-64">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
 
@@ -193,103 +192,103 @@ const MyOrders = () => {
                         </div>
                     </div>
 
-
-
-                    {/* Orders List */}
                     <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
                         <div className="space-y-6">
-                            {orders?.map((order) => (
-                                <div key={order.orderId} className="border-b last:border-b-0 pb-6 last:pb-0">
-                                    <div className="flex flex-col lg:flex-row lg:items-center gap-4">
-                                        {/* Product Image */}
-                                        <div className="flex -space-x-2">
-                                            {order?.items?.map(item => (
-                                                <img
-                                                    key={item?.coverImage}
-                                                    src={item?.coverImage}
-                                                    alt="Product"
-                                                    className="w-10 h-10 rounded-full border-2 border-white object-cover"
-                                                />
-                                            ))}
-                                        </div>
+                            {orders?.length == 0 ? <p className='text-center'>No Order Found</p> : orders?.map((order) => {
+                                const isReturned = order?.items?.some(i => i.status == "return-requested" || i.status == "returned")
+                                return (
+                                    <div key={order.orderId} className="border-b last:border-b-0 pb-6 last:pb-0">
+                                        <div className="flex flex-col lg:flex-row lg:items-center gap-4">
 
-                                        {/* Product Details */}
-                                        <div className="flex-1 min-w-0">
-                                            <h3 className="text-base md:text-lg font-medium text-gray-900 mb-1">
-                                                {order?.orderId}
-                                            </h3>
-                                            <p className="text-gray-700 mb-1">Total Amount : ₹ {order?.totalAmount.toFixed(2)}</p>
-                                            <p className="text-gray-600 text-sm mb-1">items: {order?.items?.length}</p>
-                                            <p className="text-gray-500 text-sm">order date : {new Date(order?.orderDate).toLocaleDateString()}</p>
-                                        </div>
-
-                                        {/* Status and Actions */}
-                                        <div className="flex flex-col items-start lg:items-end gap-3 lg:min-w-[250px]">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-gray-600 text-sm">Status:</span>
-                                                <span className={`font-medium ${order?.orderStatus}`}>
-                                                    {order?.orderStatus}
-                                                </span>
+                                            <div className="flex -space-x-2">
+                                                {order?.items?.map(item => (
+                                                    <img
+                                                        key={item?.coverImage}
+                                                        src={item?.coverImage}
+                                                        alt="Product"
+                                                        className="w-10 h-10 rounded-full border-2 border-white object-cover"
+                                                    />
+                                                ))}
                                             </div>
 
-                                            {/* Action Buttons */}
-                                            <div className="flex flex-wrap gap-2">
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="text-base md:text-lg font-medium text-gray-900 mb-1">
+                                                    {order?.orderId}
+                                                </h3>
+                                                <p className="text-gray-700 mb-1">Total Amount : ₹ {order?.totalAmount.toFixed(2)}</p>
+                                                <p className="text-gray-600 text-sm mb-1">items: {order?.items?.length}</p>
+                                                <p className="text-gray-500 text-sm">order date : {new Date(order?.orderDate).toLocaleDateString()}</p>
+                                            </div>
 
-                                                <button
-                                                    className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm rounded hover:bg-gray-800 transition-colors"
-                                                    onClick={() => navigate(`/orders/${order._id}`)}
-                                                >
-                                                    <Eye size={16} />
-                                                    View Details
-                                                </button>
+                                            <div className="flex flex-col items-start lg:items-end gap-3 lg:min-w-[250px]">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-gray-600 text-sm">Status:</span>
+                                                    <span className={`font-medium ${order?.orderStatus}`}>
+                                                        {order?.orderStatus}
+                                                    </span>
+                                                </div>
 
-                                                <button className=" flex items-center justify-center gap-2 px-4 py-3 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
-                                                    onClick={() => window.open(`${backendUrl}/api/order/invoice/${order._id}`, "_blank")}>
-                                                    <Printer className="w-4 h-4" />
-                                                    <span>Invoice</span>
-                                                </button>
+                                                <div className="flex flex-wrap gap-2">
 
-                                                {(order.orderStatus === "pending" || order.orderStatus === "processing") && (
                                                     <button
-                                                        className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-colors"
-                                                        onClick={() => handleCancel(order._id, "cancelled")}
+                                                        className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm rounded hover:bg-gray-800 transition-colors"
+                                                        onClick={() => navigate(`/orders/${order._id}`)}
                                                     >
-                                                        <XCircle size={16} />
-                                                        Cancel Order
+                                                        <Eye size={16} />
+                                                        View Details
                                                     </button>
-                                                )}
 
-                                                {order.orderStatus === "delivered" && (
-                                                    <>
+                                                    <button className=" flex items-center justify-center gap-2 px-4 py-3 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+                                                        onClick={() => window.open(`${backendUrl}/api/order/invoice/${order._id}`, "_blank")}>
+                                                        <Printer className="w-4 h-4" />
+                                                        <span>Invoice</span>
+                                                    </button>
 
-                                                        {(() => {
-                                                            if (!order.deliveryDate) return null; // no delivery date yet
-                                                            const today = new Date();
-                                                            const deliveryDate = new Date(order.deliveryDate);
+                                                    {(order.orderStatus === "pending" || order.orderStatus === "processing") && (
+                                                        <button
+                                                            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm rounded hover:bg-red-700 transition-colors"
+                                                            onClick={() => handleCancel(order._id, "cancelled")}
+                                                        >
+                                                            <XCircle size={16} />
+                                                            Cancel Order
+                                                        </button>
+                                                    )}
 
-                                                            const isSameDay =
-                                                                today.toLocaleDateString() === deliveryDate.toLocaleDateString();
+                                                    {order.orderStatus === "delivered" && (
+                                                        <>
+                                                            {(() => {
+                                                                if (!order.deliveryDate) return null;
 
-                                                            return isSameDay ? (
-                                                                <button
-                                                                    className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white text-sm rounded hover:bg-yellow-600 transition-colors"
-                                                                    onClick={() => handleReturn(order._id, "return-requested")}>
-                                                                    Return Order
-                                                                </button>
-                                                            ) : null;
-                                                        })()}
-                                                    </>
-                                                )}
+                                                                const now = new Date();
+                                                                const deliveryDate = new Date(order.deliveryDate);
+                                                                const diffHours = (now - deliveryDate) / (1000 * 60 * 60);
+
+                                                                if (diffHours <= 12 && !isReturned) {
+                                                                    return (
+                                                                        <button
+                                                                            className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white text-sm rounded hover:bg-yellow-600 transition-colors"
+                                                                            onClick={() => handleReturn(order._id, "return-requested")}
+                                                                        >
+                                                                            Return Order
+                                                                        </button>
+                                                                    );
+                                                                } else if (diffHours > 12 && !isReturned) {
+                                                                    return <p className="text-sm text-gray-500">Return period expired (after 12 hours)</p>;
+                                                                }
+                                                                return null;
+                                                            })()}
+
+                                                        </>
+                                                    )}
+
+                                                </div>
 
                                             </div>
-
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                )
+                            })}
                         </div>
-
-                        {/* Pagination */}
 
                         <div className='flex justify-center items-center gap-2 mt-8'>
                             <Pagination setCurrentPage={setCurrentPage} currentPage={currentPage} totalPages={totalPages} />
