@@ -52,7 +52,6 @@ const Wishlist = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
 
-      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
           Wishlist - {wishlist?.items?.filter(item => item.productId.isListed == true).length || 0}

@@ -99,7 +99,7 @@ const ProductDetail = () => {
         if (inWishlist) {
             removeWishlist(product._id);
         } else {
-            addToWishlist(product._id);
+            addToWishlist(product._id , selectedVariant.sku);
         }
     };
 
