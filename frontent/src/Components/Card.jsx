@@ -2,7 +2,7 @@ import React from 'react';
 import { Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const Card = ({ id, image, name, category, price, salePrice, appliedOffer }) => {
+const Card = ({ id, image, name, category, price, salePrice, appliedOffer , quantity }) => {
 
     const navigate = useNavigate()
 
@@ -41,6 +41,9 @@ const Card = ({ id, image, name, category, price, salePrice, appliedOffer }) => 
                     <span className="text-md line-through text-gray-700 ms-4 mt-1">
                         ₹{price.toFixed(2)}
                     </span>
+                    { quantity <= 0 ? (
+                        <span className='text-red-500 mt-1 ms-2'>Stock out</span>
+                    ) : ""}
                 </div>
             </div>
         </div>

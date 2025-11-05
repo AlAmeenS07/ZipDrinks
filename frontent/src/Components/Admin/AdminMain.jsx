@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Home, Users, ShoppingCart, Package, DollarSign, BarChart3, ChevronDown, Box } from 'lucide-react';
+import { Menu, X, Home, Users, ShoppingCart, Package, DollarSign, BarChart3, ChevronDown, Box, Ticket } from 'lucide-react';
 import { useDispatch } from 'react-redux';
 import { adminOut } from '../../Store/Admin/AdminSlice';
 import { toast } from 'react-toastify';
@@ -42,6 +42,7 @@ const AdminMain = ({ children }) => {
     { icon: Package, label: 'Products', path: '/admin/products' },
     { icon: Box, label: 'Category', path: '/admin/categories' },
     { icon: BarChart3, label: 'Reports', path: '/admin/reports' },
+    { icon: Ticket, label: 'Coupons', path: '/admin/coupons' }
   ];
 
   const isActive = (path) => location.pathname === path;

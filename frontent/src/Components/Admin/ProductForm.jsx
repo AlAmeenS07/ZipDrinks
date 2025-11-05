@@ -380,7 +380,7 @@ const ProductForm = ({ productEditSubmit, product }) => {
                                     type="number"
                                     {...register(`variants.${index}.quantity`, {
                                         required: "Quantity is required!",
-                                        min: { value: 1, message: "Minimum quantity must be > 0" },
+                                        // min: { value: 0, message: "Minimum quantity must be > 0" },
                                         max: { value: 100000, message: "Too large quantity!" }
                                     })}
                                     placeholder="120"

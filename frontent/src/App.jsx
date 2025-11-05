@@ -47,6 +47,8 @@ import MyOrders from "./pages/Home/MyOrders.jsx"
 import OrderDetail from "./pages/Home/OrderDetail.jsx"
 import OrderSuccess from "./pages/Home/OrderSuccess.jsx"
 import Contact from "./pages/Home/Contact.jsx"
+import AdminCoupon from "./pages/Admin/Coupons/AdminCoupon.jsx"
+import AdminCouponAdd from "./pages/Admin/Coupons/AdminCouponAdd.jsx"
 
 function App() {
 
@@ -67,10 +69,10 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if(!hideNavbar && isLoggedIn){
+    if (!hideNavbar && isLoggedIn) {
       dispatch(fetchCart())
     }
-  }, [isLoggedIn, dispatch , hideNavbar])
+  }, [isLoggedIn, dispatch, hideNavbar])
 
   useEffect(() => {
     if (!hideNavbar) {
@@ -248,6 +250,16 @@ function App() {
           <Route path="/admin/orders/:orderId" element={
             <AdminProtectedRoute>
               <AdminOrderDetail />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/admin/coupons" element={
+            <AdminProtectedRoute>
+              <AdminCoupon />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/admin/coupons/add-coupon" element={
+            <AdminProtectedRoute>
+              <AdminCouponAdd />
             </AdminProtectedRoute>
           } />
 
