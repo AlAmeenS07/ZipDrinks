@@ -41,7 +41,7 @@ const AdminMain = ({ children }) => {
     { icon: ShoppingCart, label: 'Orders', path: '/admin/orders' },
     { icon: Package, label: 'Products', path: '/admin/products' },
     { icon: Box, label: 'Category', path: '/admin/categories' },
-    { icon: BarChart3, label: 'Reports', path: '/admin/reports' },
+    { icon: BarChart3, label: 'Reports', path: '/admin/sales' },
     { icon: Ticket, label: 'Coupons', path: '/admin/coupons' }
   ];
 

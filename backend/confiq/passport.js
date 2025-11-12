@@ -2,6 +2,7 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20"
 import 'dotenv/config'
 import userModel from "../models/userModel.js"
+import walletModel from "../models/wallet.js";
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
@@ -16,18 +17,41 @@ passport.use(new GoogleStrategy({
                 return done(null, user);
             } else {
                 user = await userModel.findOne({ email: profile.emails[0].value });
-                
+
                 if (user) {
-                   return done(null, false, { message: 'Email already exists' });
+                    return done(null, false, { message: 'Email already exists' });
                 }
+
+                const generateReferralCode = async () => {
+                    let refCode;
+                    let exist = true
+
+                    while (exist) {
+                        const num = Math.floor(100000 + Math.random() * 900000);
+                        refCode = `REF${num}`;
+
+                        let referralExist = await userModel.findOne({ referralCode: refCode })
+                        if (!referralExist) {
+                            exist = false
+                        }
+                    }
+
+                    return refCode
+                };
+
+                let referralCode = await generateReferralCode()
 
                 user = new userModel({
                     fullname: profile.displayName,
                     email: profile.emails[0].value,
                     googleId: profile.id,
                     isVerified: true,
+                    referralCode
                 });
                 await user.save();
+
+                await walletModel.create({ userId : user._id})
+
                 return done(null, user);
             }
         } catch (error) {

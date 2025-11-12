@@ -13,6 +13,8 @@ import wishlistRouter from "./routes/wishlistRoutes.js"
 import cartRouter from "./routes/cartRoutes.js"
 import orderRouter from "./routes/orderRoutes.js"
 import logger from "./logger.js"
+import couponRouter from "./routes/couponRoutes.js"
+import walletRouter from "./routes/User/wallerRoutes.js"
 
 const app = express()
 const port = process.env.PORT || 5000
@@ -43,6 +45,8 @@ app.use('/api/categories' , categoryRouter)
 app.use('/api/wishlist' , wishlistRouter)
 app.use('/api/cart' , cartRouter)
 app.use('/api/order' , orderRouter)
+app.use('/api/coupons' , couponRouter)
+app.use('/api/wallet' , walletRouter)
 
 app.use((err, req, res, next) => {
   logger.error(err.stack);

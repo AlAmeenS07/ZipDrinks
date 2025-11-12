@@ -11,7 +11,13 @@ const orderSchema = new mongoose.Schema(
             type: String,
             unique: true,
         },
-
+        couponId : {
+            type : mongoose.Schema.Types.ObjectId,
+            ref : "coupons"
+        },
+        couponAmount : {
+            type : Number
+        },
         items: [
             {
                 _id: false,
@@ -123,7 +129,8 @@ const orderSchema = new mongoose.Schema(
         },
         deliveryFee: { 
             type: Number, 
-            required: true 
+            required: true,
+            default : 0 
         },
         totalAmount: { 
             type: Number, 

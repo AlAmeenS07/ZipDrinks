@@ -36,7 +36,10 @@ const Login = () => {
             }
 
         } catch (error) {
-            console.log(error.message)
+            toast.error(error.response.data.message)
+        }
+        finally{
+            dispatch(loadingEnd())
         }
         reset()
     }

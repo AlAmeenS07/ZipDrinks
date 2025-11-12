@@ -68,6 +68,8 @@ export default function AdminCategory() {
 
         const { data } = await axiosInstance.get('/api/admin/categories', { params });
 
+        console.log(data)
+
         if (data.success) {
           setCategories(data.categories);
           setTotalPages(data.totalPages)
@@ -77,7 +79,7 @@ export default function AdminCategory() {
           setCategories([]);
         }
       } catch (error) {
-        toast.error(error.message);
+        toast.error(error?.response?.data.message);
       } finally {
         setLoading(false);
       }
@@ -127,8 +129,8 @@ export default function AdminCategory() {
                 className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
               >
                 <option value="">Sort</option>
-                <option value="highSale">High Sale</option>
-                <option value="lowSale">Low Sale</option>
+                {/* <option value="highSale">High Sale</option>
+                <option value="lowSale">Low Sale</option> */}
                 <option value="firstAdded">First Added</option>
               </select>
 

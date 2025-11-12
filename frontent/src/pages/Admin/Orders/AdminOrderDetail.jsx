@@ -64,44 +64,44 @@ export default function AdminOrderDetail() {
     });
   };
 
-  async function approveOrderReturn(orderId , status){
-      try {
-
-        let { data } = await axiosInstance.patch(`/api/admin/orders/${orderId}/return` , {status})
-
-        if(data.success){
-          toast.success("Return approved successfully")
-          setOrder(data.order)
-        }
-        else {
-          toast.error(data.message)
-        }
-        
-      } catch (error) {
-        toast.error(error.message)
-      }
-      finally{
-        setShowStatusModal(false)
-      }
-  }
-
-  async function approveOrderItemReturn(orderId , sku , status){
+  async function approveOrderReturn(orderId, status) {
     try {
 
-      let { data } = await axiosInstance.patch(`/api/admin/orders/${orderId}/return-item` , {sku , status})
+      let { data } = await axiosInstance.patch(`/api/admin/orders/${orderId}/return`, { status })
 
-      if(data.success){
+      if (data.success) {
+        toast.success("Return approved successfully")
+        setOrder(data.order)
+      }
+      else {
+        toast.error(data.message)
+      }
+
+    } catch (error) {
+      toast.error(error.response.data.message)
+    }
+    finally {
+      setShowStatusModal(false)
+    }
+  }
+
+  async function approveOrderItemReturn(orderId, sku, status) {
+    try {
+
+      let { data } = await axiosInstance.patch(`/api/admin/orders/${orderId}/return-item`, { sku, status })
+
+      if (data.success) {
         toast.success("Order item returned successfully")
         setOrder(data.order)
       }
       else {
         toast.error(data.message)
       }
-      
+
     } catch (error) {
       toast.error(error.message)
     }
-    finally{
+    finally {
       setShowStatusModal(false)
     }
   }
@@ -130,7 +130,7 @@ export default function AdminOrderDetail() {
           </div>
 
           <OrderDetailsInfo order={order} />
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
 
             <div className="lg:col-span-2 bg-white rounded-lg shadow-sm">
@@ -202,14 +202,14 @@ export default function AdminOrderDetail() {
 
                       <p className="text-sm mb-3 bg-gray-50 p-3 rounded">
                         <strong>Reason:</strong>{" "}
-                        {selectedItem.status === "cancelled" ? selectedItem.cancelReason : selectedItem.status == "returned" ? selectedItem.returnReason :  selectedItem.returnReason || "No reason provided."}
+                        {selectedItem.status === "cancelled" ? selectedItem.cancelReason : selectedItem.status == "returned" ? selectedItem.returnReason : selectedItem.returnReason || "No reason provided."}
                       </p>
 
                       {selectedItem.status === "return-requested" && (
                         <div className="flex justify-end gap-3">
                           <button
                             className="px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700"
-                            onClick={()=> approveOrderItemReturn(orderId , selectedItem.sku , "returned")}
+                            onClick={() => approveOrderItemReturn(orderId, selectedItem.sku, "returned")}
                           >
                             Approve
                           </button>
@@ -239,6 +239,12 @@ export default function AdminOrderDetail() {
                     <span>Delivery Charge</span>
                     <span>{order.deliveryFee}</span>
                   </div>
+                  {order?.couponAmount ? (
+                    <div className="flex justify-between text-sm">
+                      <span>Coupon Discount</span>
+                      <span>{order?.couponAmount}</span>
+                    </div>
+                  ) : ""}
                   <div className="flex justify-between text-sm">
                     <span>Tax (18%)</span>
                     <span>{order.taxAmount}</span>
@@ -271,7 +277,7 @@ export default function AdminOrderDetail() {
 
             <OrderStatus order={order} />
 
-              {order.orderStatus == "return-requested" ?
+            {order.orderStatus == "return-requested" ?
               (
                 <div className="bg-white p-6 rounded-lg shadow-md w-[90%] max-w-md">
                   <h2 className="text-lg font-semibold mb-3 capitalize">
@@ -280,12 +286,12 @@ export default function AdminOrderDetail() {
 
                   <p className="text-sm mb-3 bg-gray-50 p-3 rounded">
                     <strong>Reason:</strong>{" "}
-                    {order?.items.find(i => i.status == "return-requested").returnReason || "No reason provided."}
+                    {order?.items.find(i => i.status == "return-requested")?.returnReason || "No reason provided."}
                   </p>
 
                   <button
                     className="px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700"
-                    onClick={()=> approveOrderReturn(orderId , "returned")}>
+                    onClick={() => approveOrderReturn(orderId, "returned")}>
                     Approve
                   </button>
                 </div>

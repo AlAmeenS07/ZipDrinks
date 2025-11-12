@@ -13,7 +13,6 @@ const OrderDetail = () => {
 
     const { orderId } = useParams()
     const [order, setOrder] = useState({})
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
     useEffect(() => {
         async function getOrder() {
@@ -62,7 +61,7 @@ const OrderDetail = () => {
                     toast.error(data.message);
                 }
             } catch (error) {
-                toast.error(error.message);
+                toast.error(error?.response?.data.message);
             }
         }
     }
@@ -71,20 +70,24 @@ const OrderDetail = () => {
     async function handleItemReturn(orderId, sku, status) {
         const { value: reason } = await Swal.fire({
             title: 'Return Order item',
-            input: 'text',
-            text: "Note : Only one return is possible",
-            inputLabel: 'Please enter a reason for returning:',
-            inputPlaceholder: 'Type your reason here...',
-            inputValidator: (value) => {
-                if (!value.trim()) {
-                    return 'Reason is required!';
-                }
+            text: 'Note: Only one return is possible item/order',
+            input: 'select',
+            inputOptions: {
+                damage: 'damage',
+                "mind-changed": 'mind-changed',
+                other: 'other',
             },
+            inputPlaceholder: 'Select a reason',
             showCancelButton: true,
             confirmButtonText: 'Submit',
             cancelButtonText: 'Close',
             confirmButtonColor: '#d33',
             cancelButtonColor: '#6c757d',
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'Please select a reason!';
+                }
+            },
         });
 
         if (reason) {
@@ -103,6 +106,25 @@ const OrderDetail = () => {
     }
 
     const isReturn = order?.items?.some(i => i.status == "return-requested" || i.status == "returned")
+
+    async function downloadInvoice() {
+        try {
+            const response = await axiosInstance.get(`/api/order/invoice/${orderId}`, {
+                responseType: "blob",
+            });
+            const blob = new Blob([response.data], { type: "application/pdf" });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `Invoice_${orderId}.pdf`;
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            toast.error("Failed to download invoice", error.message);
+        }
+    };
+
 
     return (
         <UserProfileMain>
@@ -287,12 +309,18 @@ const OrderDetail = () => {
                                     <div className="space-y-3">
                                         <div className="flex justify-between text-sm">
                                             <span className="text-gray-600">Subtotal</span>
-                                            <span className="font-medium text-gray-900">₹ {order?.subTotal?.toFixed(2)}</span>
+                                            <span className="font-medium text-gray-900">₹ {(order?.subTotal)?.toFixed(2)}</span>
                                         </div>
                                         <div className="flex justify-between text-sm">
                                             <span className="text-gray-600">Delivery Fee</span>
                                             <span className="font-medium text-gray-900">₹ {order?.deliveryFee?.toFixed(2)}</span>
                                         </div>
+                                        {order?.couponAmount ? (
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-gray-600">Coupon Discount</span>
+                                                <span className="font-medium text-gray-900">₹ {order?.couponAmount?.toFixed(2)}</span>
+                                            </div>
+                                        ) : ""}
                                         <div className="flex justify-between text-sm">
                                             <span className="text-gray-600">Tax Amount</span>
                                             <span className="font-medium text-gray-900">₹ {order?.taxAmount?.toFixed(2)}</span>
@@ -306,7 +334,7 @@ const OrderDetail = () => {
 
                                 <div className="space-y-3">
                                     <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors"
-                                        onClick={() => window.open(`${backendUrl}/api/order/invoice/${orderId}`, "_blank")}>
+                                        onClick={downloadInvoice}>
                                         <Printer className="w-4 h-4" />
                                         <span>Download Invoice</span>
                                     </button>

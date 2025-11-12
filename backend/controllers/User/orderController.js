@@ -1,4 +1,4 @@
-import { cancelOrderitemService, cancelOrderService, downloadOrderInvoiceService, getSingleOrderService, getUserOrderService, placeOrderService, returnOrderItemService, returnOrderService } from "../../Services/User/orderService.js"
+import { cancelOrderitemService, cancelOrderService, downloadOrderInvoiceService, getSingleOrderService, getUserOrderService, placeOrderService, returnOrderItemService, returnOrderService, verifyPaymentService } from "../../Services/User/orderService.js"
 
 
 // place order
@@ -39,4 +39,8 @@ export const returnOrderItem = async(req , res)=>{
 // invoice download
 export const downloadOrderInvoice = async(req , res)=>{
     await downloadOrderInvoiceService(req , res)
+}
+
+export const verifyPayment = async(req , res)=>{
+    await verifyPaymentService(req , res)
 }

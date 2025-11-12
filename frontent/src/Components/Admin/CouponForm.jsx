@@ -1,169 +1,187 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 
-export default function CouponForm() {
-  const [formData, setFormData] = useState({
-    couponCode: '',
-    discount: '',
-    description: '',
-    expiryDate: '',
-    limit: '',
-    minimumPurchase: '',
-    active: true,
-    maxRedeemablePrice: ''
-  });
+export default function CouponForm({ couponSubmit, coupon }) {
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-  };
+    const { register, handleSubmit, formState: { errors }, reset } = useForm({
+        defaultValues: {
+            couponCode: coupon?.couponCode || "",
+            discount: coupon?.discount || "",
+            description: coupon?.description || "",
+            expiryDate : coupon?.expiryDate ? new Date(coupon?.expiryDate).toISOString().split("T")[0] : "",
+            limit: coupon?.limit || "",
+            minPurchase: coupon?.minPurchase || "",
+            maxRedeem: coupon?.maxRedeem || ""
+        }
+    })
 
+    useEffect(() => {
+        if (coupon) {
+            reset({
+                couponCode: coupon?.couponCode || "",
+                discount: coupon?.discount || "",
+                description: coupon?.description || "",
+                expiryDate : coupon?.expiryDate ? new Date(coupon?.expiryDate).toISOString().split("T")[0] : "",
+                limit: coupon?.limit || "",
+                minPurchase: coupon?.minPurchase || "",
+                maxRedeem: coupon?.maxRedeem || ""
+            })
+        }
+    }, [coupon, reset])
 
-  const handleSubmit = () => {
-    console.log('Form submitted:', formData);
-  };
+    return (
+        <form onSubmit={handleSubmit(couponSubmit)} className="bg-white rounded-lg shadow-sm p-6 sm:p-8" noValidate>
+            <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">{coupon ? "Edit Coupon" : "Add coupon"}</h2>
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-6">
-            <h1 className="text-2xl font-semibold text-gray-900 mt-2">Coupons</h1>
-          <div className="flex items-center text-sm text-gray-600">
-            <span className="hover:text-gray-900 cursor-pointer">Dashboard</span>
-            <span className="mx-2">&gt;</span>
-            <span className="text-gray-400">coupons</span>
-          </div>
-        </div>
+            <div className="space-y-6">
+                {/* Row 1: Coupon Code & Discount */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                    <div className="flex items-center gap-4">
+                        <label className="text-sm font-medium text-gray-700 w-32 text-left">
+                            Coupon Code
+                        </label>
+                        <span className="text-gray-700">:</span>
+                        <div>
+                            <input
+                                type="text"
+                                name="couponCode"
+                                {...register("couponCode", { required: { value: true, message: "Code is required !" }, validate: (val) => val.trim() === val || "Enter valid code !" })}
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            {errors.couponCode && <p className='text-center mt-2 text-red-500'>{errors.couponCode.message}</p>}
+                        </div>
+                    </div>
 
-        <div className="bg-white rounded-lg shadow-sm p-6 sm:p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">Add coupon</h2>
-          
-          <div className="space-y-6">
-            {/* Row 1: Coupon Code & Discount */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-              <div className="flex items-center gap-4">
-                <label className="text-sm font-medium text-gray-700 w-32 text-left">
-                  Coupon Code
-                </label>
-                <span className="text-gray-700">:</span>
-                <input
-                  type="text"
-                  name="couponCode"
-                  value={formData.couponCode}
-                  onChange={handleChange}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+                    <div className="flex items-center gap-4">
+                        <label className="text-sm font-medium text-gray-700 w-32 text-left">
+                            Discount
+                        </label>
+                        <span className="text-gray-700">:</span>
+                        <div>
+                            <input
+                                type="text"
+                                name="discount"
+                                {...register("discount", {
+                                    required: { value: true, message: "Discount is required !" },
+                                    pattern: {
+                                        value: /^(\d{1,2}(\.\d+)?%|\d{1,5})$/,
+                                        message: "Enter valid offer (e.g., 20 or 20%)"
+                                    }
+                                })}
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            {errors.discount && <p className='text-center mt-2 text-red-500'>{errors.discount.message}</p>}
+                        </div>
+                    </div>
+                </div>
 
-              <div className="flex items-center gap-4">
-                <label className="text-sm font-medium text-gray-700 w-32 text-left">
-                  Discount
-                </label>
-                <span className="text-gray-700">:</span>
-                <input
-                  type="text"
-                  name="discount"
-                  value={formData.discount}
-                  onChange={handleChange}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+                {/* Row 2: Description & Expiry Date */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                    <div className="flex items-center gap-4">
+                        <label className="text-sm font-medium text-gray-700 w-32 text-left">
+                            Description
+                        </label>
+                        <span className="text-gray-700">:</span>
+                        <div>
+                            <input
+                                type="text"
+                                name="description"
+                                {...register("description", {
+                                    required: { value: true, message: "Description is required !" },
+                                    validate: (val) => val.trim() === val || "Enter valid description !",
+                                    minLength: { value: 10, message: "Description aleast 10 letters !" }
+                                })}
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            {errors.description && <p className='text-center mt-2 text-red-500'>{errors.description.message}</p>}
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <label className="text-sm font-medium text-gray-700 w-32 text-left">
+                            Expiry Date
+                        </label>
+                        <span className="text-gray-700">:</span>
+                        <div>
+                            <input
+                                type="date"
+                                name="expiryDate"
+                                {...register("expiryDate", { required: { value: true, message: "Date is required !" } })}
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            {errors.expiryDate && <p className='text-center mt-2 text-red-500'>{errors.expiryDate.message}</p>}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Row 3: Limit & Minimum Purchase */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                    <div className="flex items-center gap-4">
+                        <label className="text-sm font-medium text-gray-700 w-32 text-left">
+                            Limit
+                        </label>
+                        <span className="text-gray-700">:</span>
+                        <div>
+                            <input
+                                type="number"
+                                name="limit"
+                                {...register("limit", { required: { value: true, message: "limit is required !" }, min: { value: 0, message: "Minimum limit will be 0" } })}
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            {errors.limit && <p className='text-center mt-2 text-red-500'>{errors.limit.message}</p>}
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <label className="text-sm font-medium text-gray-700 w-32 text-left">
+                            Minimum purchase
+                        </label>
+                        <span className="text-gray-700">:</span>
+                        <div>
+                            <input
+                                type="number"
+                                name="minimumPurchase"
+                                {...register("minPurchase", {
+                                    required: { value: true, message: "minimum purchase is required !" },
+                                    min: { value: 0, message: "minimum value must be 0" }
+                                })}
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            {errors.minPurchase && <p className='text-center mt-2 text-red-500'>{errors.minPurchase.message}</p>}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Row 4: Active Toggle & Max Redeemable Price */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+
+                    <div className="flex items-center gap-4">
+                        <label className="text-sm font-medium text-gray-700 w-32 text-left">
+                            Max redeemable price
+                        </label>
+                        <span className="text-gray-700">:</span>
+                        <div>
+                            <input
+                                type="number"
+                                name="maxRedeemablePrice"
+                                {...register("maxRedeem", { required: { value: true, message: "MaxRedeem is required !" }, min: { value: 0, message: "Minimum value must be 0" } })}
+                                className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            {errors.maxRedeem && <p className='text-center mt-2 text-red-500'>{errors.maxRedeem.message}</p>}
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            {/* Row 2: Description & Expiry Date */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-              <div className="flex items-center gap-4">
-                <label className="text-sm font-medium text-gray-700 w-32 text-left">
-                  Description
-                </label>
-                <span className="text-gray-700">:</span>
-                <input
-                  type="text"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="flex items-center gap-4">
-                <label className="text-sm font-medium text-gray-700 w-32 text-left">
-                  Expiry Date
-                </label>
-                <span className="text-gray-700">:</span>
-                <input
-                  type="date"
-                  name="expiryDate"
-                  value={formData.expiryDate}
-                  onChange={handleChange}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+            {/* Submit Button */}
+            <div className="mt-12">
+                <button
+                    type="submit"
+                    className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium text-lg"
+                >
+                    {coupon ? "Update" : "Add Coupon"}
+                </button>
             </div>
-
-            {/* Row 3: Limit & Minimum Purchase */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-              <div className="flex items-center gap-4">
-                <label className="text-sm font-medium text-gray-700 w-32 text-left">
-                  Limit
-                </label>
-                <span className="text-gray-700">:</span>
-                <input
-                  type="number"
-                  name="limit"
-                  value={formData.limit}
-                  onChange={handleChange}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div className="flex items-center gap-4">
-                <label className="text-sm font-medium text-gray-700 w-32 text-left">
-                  Minimum purchase
-                </label>
-                <span className="text-gray-700">:</span>
-                <input
-                  type="number"
-                  name="minimumPurchase"
-                  value={formData.minimumPurchase}
-                  onChange={handleChange}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-
-            {/* Row 4: Active Toggle & Max Redeemable Price */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-
-              <div className="flex items-center gap-4">
-                <label className="text-sm font-medium text-gray-700 w-32 text-left">
-                  Max redeemable price
-                </label>
-                <span className="text-gray-700">:</span>
-                <input
-                  type="number"
-                  name="maxRedeemablePrice"
-                  value={formData.maxRedeemablePrice}
-                  onChange={handleChange}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Submit Button */}
-          <div className="mt-12">
-            <button
-              onClick={handleSubmit}
-              className="w-full bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition-colors font-medium text-lg"
-            >
-              Add Coupon
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+        </form>
+    );
 }

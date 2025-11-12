@@ -20,7 +20,7 @@ export default function AdminOrders() {
   const [totalPages, setTotalPages] = useState(1);
 
 
-  const itemsPerPage = 5;
+  const itemsPerPage = 15;
 
   useEffect(() => {
     const delay = setTimeout(() => {

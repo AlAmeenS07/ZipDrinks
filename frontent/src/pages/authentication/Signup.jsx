@@ -26,7 +26,7 @@ const Signup = () => {
 
             let res = await axiosInstance.post(backendurl + '/api/auth/register', {
                 fullname: data.fullname, email: data.email,
-                phone: data.phone, password: data.password
+                phone: data.phone, password: data.password , referredBy : data.referredBy
             })
 
             if (res.data.success) {
@@ -40,7 +40,7 @@ const Signup = () => {
 
         } catch (error) {
             dispatch(loginFail())
-            toast.error(error.message || "Signup Fail")
+            toast.error(error.response.data.message || "Signup Fail")
             console.log(error.message)
         }
 
@@ -135,7 +135,7 @@ const Signup = () => {
                                     Anyone Referred ?
                                 </label>
                                 <input className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
-                                    type="text" placeholder="ref1234" />
+                                    type="text" placeholder="ref1234" {...register("referredBy")} />
                             </div>
 
                             <button

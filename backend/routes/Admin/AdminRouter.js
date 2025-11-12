@@ -6,6 +6,8 @@ import { blockUnblockCustomer, getCustomers } from "../../controllers/Admin/cust
 import { addCategory, categoryListUnlist, getCategories, singleCategory, updateCategory } from "../../controllers/Admin/CategoryController.js";
 import { addProducts, getProducts, productListUnlist, singleProduct, updateProduct } from "../../controllers/Admin/productController.js";
 import { approveOrderItemReturn, approveOrderReturn, changeOrderStatus, getOrders, getSingleOrder } from "../../controllers/Admin/orderController.js";
+import { addCoupon, couponStatus, deleteCoupon, getCoupons, getSingleCoupon, updateCoupon } from "../../controllers/Admin/couponController.js";
+import { generateSalesExcel, generateSalesPdf, getSales } from "../../controllers/Admin/salesController.js";
 
 const AdminRouter = express.Router()
 
@@ -29,5 +31,14 @@ AdminRouter.get('/orders/:orderId' , getSingleOrder)
 AdminRouter.put('/orders/:orderId/status' , changeOrderStatus)
 AdminRouter.patch('/orders/:orderId/return' , approveOrderReturn)
 AdminRouter.patch('/orders/:orderId/return-item' , approveOrderItemReturn)
+AdminRouter.post('/coupons/add-coupon' , addCoupon)
+AdminRouter.get('/coupons' , getCoupons)
+AdminRouter.get('/coupons/:couponId' , getSingleCoupon)
+AdminRouter.put('/coupons/:couponId' , updateCoupon)
+AdminRouter.patch('/coupons/:couponId/status' , couponStatus)
+AdminRouter.patch('/coupons/:couponId' , deleteCoupon)
+AdminRouter.get('/sales' , getSales)
+AdminRouter.get('/sales/download-pdf' , generateSalesPdf)
+AdminRouter.get('/sales/download-excel' , generateSalesExcel)
 
 export default AdminRouter

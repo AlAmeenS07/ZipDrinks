@@ -15,7 +15,6 @@ const MyOrders = () => {
 
     const navigate = useNavigate()
     const [orders, setOrders] = useState([])
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
     const [currentPage, setCurrentPage] = useState(query.get('page') || 1)
     const [searchTerm, setSearchTerm] = useState(query.get('search') || '')
@@ -94,7 +93,7 @@ const MyOrders = () => {
                     toast.error(data.message);
                 }
             } catch (error) {
-                toast.error(error.message);
+                toast.error(error?.response?.data?.message);
             }
         }
     }
@@ -102,30 +101,40 @@ const MyOrders = () => {
     async function handleReturn(orderId, status) {
         const { value: reason } = await Swal.fire({
             title: 'Return Order',
-            text: "Note : Only one return is possible",
-            input: 'text',
-            inputLabel: 'Please enter a reason for returning:',
-            inputPlaceholder: 'Type your reason here...',
-            inputValidator: (value) => {
-                if (!value.trim()) {
-                    return 'Reason is required!';
-                }
+            text: 'Note: Only one return is possible',
+            input: 'select',
+            inputOptions: {
+                damage: 'damage',
+                "mind-changed": 'mind-changed',
+                other: 'other',
             },
+            inputPlaceholder: 'Select a reason',
             showCancelButton: true,
             confirmButtonText: 'Submit',
             cancelButtonText: 'Close',
             confirmButtonColor: '#d33',
             cancelButtonColor: '#6c757d',
+            inputValidator: (value) => {
+                if (!value) {
+                    return 'Please select a reason!';
+                }
+            },
         });
 
         if (reason) {
             try {
-                const { data } = await axiosInstance.patch(`/api/order/${orderId}/return`, { reason, status });
+                const { data } = await axiosInstance.patch(`/api/order/${orderId}/return`, {
+                    reason,
+                    status,
+                });
+
                 if (data.success) {
                     toast.success('Order return-requested successfully');
                     setOrders((prev) =>
                         prev.map((order) =>
-                            order._id == orderId ? { ...order, orderStatus: 'return-requested' } : order
+                            order._id === orderId
+                                ? { ...order, orderStatus: 'return-requested' }
+                                : order
                         )
                     );
                 } else {
@@ -136,6 +145,27 @@ const MyOrders = () => {
             }
         }
     }
+
+
+    const downloadInvoice = async (orderId) => {
+        try {
+            const response = await axiosInstance.get(`/api/order/invoice/${orderId}`, {
+                responseType: "blob",
+            });
+            const blob = new Blob([response.data], { type: "application/pdf" });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `Invoice_${orderId}.pdf`;
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            toast.error("Failed to download invoice", error.message);
+        }
+    };
+
+
 
     if (loading) {
         return (
@@ -239,7 +269,7 @@ const MyOrders = () => {
                                                     </button>
 
                                                     <button className=" flex items-center justify-center gap-2 px-4 py-3 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
-                                                        onClick={() => window.open(`${backendUrl}/api/order/invoice/${order._id}`, "_blank")}>
+                                                        onClick={() => downloadInvoice(order._id)}>
                                                         <Printer className="w-4 h-4" />
                                                         <span>Invoice</span>
                                                     </button>
@@ -272,8 +302,6 @@ const MyOrders = () => {
                                                                             Return Order
                                                                         </button>
                                                                     );
-                                                                } else if (diffHours > 12 && !isReturned) {
-                                                                    return <p className="text-sm text-gray-500">Return period expired (after 12 hours)</p>;
                                                                 }
                                                                 return null;
                                                             })()}

@@ -49,6 +49,10 @@ import OrderSuccess from "./pages/Home/OrderSuccess.jsx"
 import Contact from "./pages/Home/Contact.jsx"
 import AdminCoupon from "./pages/Admin/Coupons/AdminCoupon.jsx"
 import AdminCouponAdd from "./pages/Admin/Coupons/AdminCouponAdd.jsx"
+import AdminCouponEdit from "./pages/Admin/Coupons/AdminCouponEdit.jsx"
+import ReferralCode from "./pages/UserProfile/ReferralCode.jsx"
+import Wallet from "./pages/UserProfile/Wallet.jsx"
+import AdminSales from "./pages/Admin/AdminSales.jsx"
 
 function App() {
 
@@ -197,6 +201,16 @@ function App() {
               <OrderSuccess />
             </UserProtectedRoute>
           } />
+          <Route path="/profile/referral" element={
+            <UserProtectedRoute>
+              <ReferralCode />
+            </UserProtectedRoute>
+          } />
+          <Route path="/profile/wallet" element={
+            <UserProtectedRoute>
+              <Wallet />
+            </UserProtectedRoute>
+          } />
 
 
 
@@ -260,6 +274,16 @@ function App() {
           <Route path="/admin/coupons/add-coupon" element={
             <AdminProtectedRoute>
               <AdminCouponAdd />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/admin/coupons/:couponId" element={
+            <AdminProtectedRoute>
+              <AdminCouponEdit />
+            </AdminProtectedRoute>
+          } />
+          <Route path="/admin/sales" element={
+            <AdminProtectedRoute>
+              <AdminSales />
             </AdminProtectedRoute>
           } />
 

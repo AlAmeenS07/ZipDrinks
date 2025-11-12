@@ -1,5 +1,7 @@
 import orderModel from "../../models/orderModel.js";
 import productModel from "../../models/productModel.js";
+import walletModel from "../../models/wallet.js";
+import { transactionIdCreator } from "../User/authServices.js";
 
 export const getOrdersService = async (req, res) => {
   const { search, page, status, date, range, limit } = req.query;
@@ -122,7 +124,7 @@ export const changeOrderStatusService = async (req, res) => {
       }
     }
 
-    if (status === "delivered" && orderDetail.paymentMethod === "COD" && orderDetail.transactions?.length > 0) {
+    if (status === "delivered" && orderDetail.transactions?.length > 0) {
       orderDetail.transactions[0].status = "completed";
       orderDetail.paymentStatus = "completed";
       orderDetail.deliveryDate = new Date();
@@ -161,12 +163,50 @@ export const approveOrderReturnService = async (req, res) => {
     }
 
     order.orderStatus = status || "returned";
+    order.paymentStatus = "refunded"
     order.items.forEach(item => {
       if (item.status === "return-requested") {
         item.status = status || "returned";
         item.returnApprove = true;
       }
     });
+
+
+    for (const item of order.items) {
+      if (item.returnReason == "change-mind") {
+        const product = await productModel.findById(item.productId);
+        if (!product) continue;
+
+        const variant = product.variants.find(v => v.sku === item.sku);
+        if (variant) {
+          variant.quantity += item.quantity;
+        }
+        await product.save();
+      }
+    }
+
+    let wallet = await walletModel.findOne({ userId: order.userId })
+
+    if (!wallet) {
+      wallet = new walletModel({ userId: order.userId, balance: 0, payments: [] });
+    }
+
+    let transactionId = await transactionIdCreator()
+
+    wallet.balance += order.totalAmount
+    wallet.payments.push({
+      amount: order.totalAmount,
+      type: "credit",
+      description: `Refund Amount of order ${order.orderId}`,
+      transactionId
+    })
+    order.transactions.push({
+      amount: order.totalAmount,
+      paymentMethod: "Wallet",
+      status: "refunded",
+      transactionId
+    })
+    await wallet.save()
 
     await order.save();
 
@@ -184,13 +224,11 @@ export const approveOrderItemReturnService = async (req, res) => {
 
   try {
     let order = await orderModel.findById(orderId);
-
     if (!order) {
       return res.status(404).json({ success: false, message: "Order not found!" });
     }
 
-    let item = order.items.find(i => i.sku == sku);
-
+    let item = order.items.find(i => i.sku === sku);
     if (!item) {
       return res.status(404).json({ success: false, message: "Order item not found!" });
     }
@@ -198,14 +236,54 @@ export const approveOrderItemReturnService = async (req, res) => {
     item.status = status || "returned";
     item.returnApprove = true;
 
-    // order.subTotal = order.items
-    //   .filter(i => i.status === "delivered")
-    //   .reduce((sum, i) => sum + i.subTotal, 0);
+    let refundTax = item.subTotal * 0.18;
+    let refundAmount = item.subTotal + refundTax;
 
-    // order.deliveryFee = order.subTotal < 100 ? 70 : 0;
-    // order.taxAmount = Math.floor((order.subTotal + order.deliveryFee) * 0.18);
-    // order.totalAmount = order.subTotal + order.deliveryFee + order.taxAmount;
+    if (order.couponAmount && order.couponAmount > 0 && order.subTotal > 0) {
+      const couponShare = order.couponAmount / order.items.length;
+      refundAmount -= couponShare;
+    }
 
+    if (item.returnReason === "change-mind") {
+      const product = await productModel.findById(item.productId);
+      if (product) {
+        const variant = product.variants.find(v => v.sku === item.sku);
+        if (variant) {
+          variant.quantity += item.quantity;
+          await product.save();
+        }
+      }
+    }
+
+    if (order.items.every(i => i.status === "returned")) {
+      order.orderStatus = "returned";
+      refundAmount = order.totalAmount;
+    }
+
+    let wallet = await walletModel.findOne({ userId: order.userId });
+    if (!wallet) {
+      wallet = new walletModel({ userId: order.userId, balance: 0, payments: [] });
+    }
+
+    refundAmount = Math.round(refundAmount);
+    const transactionId = await transactionIdCreator();
+
+    wallet.balance += refundAmount;
+    wallet.payments.push({
+      amount: refundAmount,
+      type: "credit",
+      description: `Refund for return item ${item.sku} of order ${order.orderId}`,
+      transactionId
+    });
+
+    order.transactions.push({
+      amount: refundAmount,
+      paymentMethod: "Wallet",
+      status: "refunded",
+      transactionId
+    });
+
+    await wallet.save();
     await order.save();
 
     return res.status(200).json({ success: true, message: "Order item returned successfully", order });

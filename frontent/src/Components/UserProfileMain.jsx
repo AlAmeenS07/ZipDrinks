@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Package, MapPin, Wallet, Heart, Lock, LogOut } from 'lucide-react';
+import { User, Package, MapPin, Wallet, Heart, Lock, LogOut, Ticket } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
@@ -33,7 +33,7 @@ export default function UserProfileMain({ children }) {
             navigate('/');
           }
         } catch (error) {
-          toast.error('Something went wrong during logout.' , error.message);
+          toast.error('Something went wrong during logout.', error.message);
         }
       }
     });
@@ -44,7 +44,7 @@ export default function UserProfileMain({ children }) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-6">
-          
+
           <aside className="w-full lg:w-64 flex-shrink-0 bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center gap-3 mb-8">
               <div className="w-12 h-12 bg-black rounded-full overflow-hidden flex items-center justify-center">
@@ -80,7 +80,7 @@ export default function UserProfileMain({ children }) {
                 <span className="text-sm font-medium">My Wishlist</span>
               </Link>
 
-              <Link to="/wallet" className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
+              <Link to="/profile/wallet" className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
                 <Wallet className="w-5 h-5" />
                 <span className="text-sm font-medium">My Wallet</span>
               </Link>
@@ -88,6 +88,11 @@ export default function UserProfileMain({ children }) {
               <Link to="/profile/change-password" className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
                 <Lock className="w-5 h-5" />
                 <span className="text-sm font-medium">Change Password</span>
+              </Link>
+
+              <Link to="/profile/referral" className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors">
+                <Ticket className="w-5 h-5" />
+                <span className="text-sm font-medium">Refferal Code</span>
               </Link>
 
               <button

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Heart, ShoppingCart, User, Menu, X } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate , NavLink } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux"
 import { logout } from '../Store/user/UserSlice';
 import axiosInstance from '../Helper/AxiosInstance';
@@ -66,21 +66,21 @@ const Navbar = () => {
     return (
         <div>
             <div className="border-b bg-gray-50 border-neutral-700 py-2 text-center text-xs sm:text-sm text-black">
-                <span className="sm:inline">Get 10% off for First Customers</span>
+                <span className="sm:inline">Get Free delivery for all !</span>
             </div>
             <header className="bg-black text-white">
                 <div className="container mx-auto px-4">
 
                     <div className="flex items-center justify-between py-1 sm:py-2">
                         <div className="flex items-center">
-                            <Link to="/">
+                            <NavLink to="/">
                                 <img src="/ZipLogo-New.png" alt="Zip Logo" className='h-10 w-20 m-2' />
-                            </Link>
+                            </NavLink>
                             <nav className="hidden lg:flex space-x-6 xl:space-x-8">
-                                <Link to="/" className="text-white hover:text-blue-400 transition text-sm xl:text-base">Home</Link>
-                                <Link to="/shop" className="text-neutral-400 hover:text-white transition text-sm xl:text-base">Shop</Link>
-                                <Link to="/about" className="text-neutral-400 hover:text-white transition text-sm xl:text-base">About</Link>
-                                <Link to="contact" className="text-neutral-400 hover:text-white transition text-sm xl:text-base">Contact</Link>
+                                <NavLink to="/" className={({ isActive })=> isActive?"text-white hover:text-blue-400 transition text-sm xl:text-base":"text-neutral-400 hover:text-white transition text-sm xl:text-base"}>Home</NavLink>
+                                <NavLink to="/shop" className={({ isActive })=> isActive?"text-white hover:text-blue-400 transition text-sm xl:text-base":"text-neutral-400 hover:text-white transition text-sm xl:text-base"}>Shop</NavLink>
+                                <NavLink to="/about" className={({ isActive })=> isActive?"text-white hover:text-blue-400 transition text-sm xl:text-base":"text-neutral-400 hover:text-white transition text-sm xl:text-base"}>About</NavLink>
+                                <NavLink to="contact" className={({ isActive })=> isActive?"text-white hover:text-blue-400 transition text-sm xl:text-base":"text-neutral-400 hover:text-white transition text-sm xl:text-base"}>Contact</NavLink>
                             </nav>
                         </div>
 

@@ -4,11 +4,33 @@ import dotenv from "dotenv";
 import userModel from "../../models/userModel.js";
 import transporter from "../../confiq/nodemailer.js";
 import cache from "../../utils/nodeCache.js";
+import walletModel from "../../models/wallet.js";
 
 dotenv.config();
 
+export const transactionIdCreator = async () => {
+  let transactionId;
+  let exist = true;
+
+  while (exist) {
+    const num = String(Math.floor(1000000 + Math.random() * 9000000));
+    transactionId = `#${num}`;
+
+    const transactionIdExist = await walletModel.findOne({ "payments.transactionId": transactionId });
+
+    if (!transactionIdExist) {
+      exist = false;
+    }
+  }
+
+  return transactionId;
+};
+
+
 export const registerUser = async (req, res) => {
-  const { fullname, email, phone, password } = req.body;
+  let { fullname, email, phone, password, referredBy } = req.body;
+
+  referredBy = referredBy.toUpperCase()
 
   if (!fullname || !email || !phone || !password) {
     return res.status(400).json({ success: false, message: "Missing Details" });
@@ -23,8 +45,58 @@ export const registerUser = async (req, res) => {
     const hashPassword = await bcrypt.hash(password, 10);
     const otp = String(Math.floor(100000 + Math.random() * 900000));
 
-    const user = new userModel({ fullname, email, phone, password: hashPassword });
+    const generateReferralCode = async () => {
+      let refCode;
+      let exist = true
+
+      while (exist) {
+        const num = Math.floor(100000 + Math.random() * 900000);
+        refCode = `REF${num}`;
+
+        let referralExist = await userModel.findOne({ referralCode: refCode })
+        if (!referralExist) {
+          exist = false
+        }
+      }
+
+      return refCode
+    };
+
+    let referralCode = await generateReferralCode()
+
+    const user = new userModel({ fullname, email, phone, password: hashPassword, referralCode, refferedBy: referredBy });
     await user.save();
+
+    let wallet = await walletModel.create({ userId: user._id })
+
+    if (referredBy) {
+      const referredUser = await userModel.findOne({ referralCode: referredBy });
+
+      if (referredUser) {
+        const referWallet = await walletModel.findOne({ userId: referredUser._id });
+
+        if (referWallet) {
+
+          referWallet.balance += 100;
+          referWallet.payments.push({
+            amount: 100,
+            type: "credit",
+            description: `Referral Bonus for inviting ${fullname}`,
+            transactionId : await transactionIdCreator()
+          });
+          await referWallet.save();
+
+          wallet.balance += 50;
+          wallet.payments.push({
+            amount: 50,
+            type: "credit",
+            description: `Referral Bonus for signing up with ${referredBy}`,
+            transactionId : await transactionIdCreator()
+          });
+          await wallet.save();
+        }
+      }
+    }
 
     cache.set(`verify_${email}`, otp, 60);
 
