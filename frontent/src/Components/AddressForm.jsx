@@ -9,7 +9,7 @@ const AddressForm = ({ addressSubmit, address , checkout }) => {
     const { register, formState: { errors }, handleSubmit, reset } = useForm({
         defaultValues: {
             fullname: address?.fullname || "",
-            phone: address?.phone.split(" ")[1] || "",
+            phone: address?.phone?.split(" ")[1] || "",
             address: address?.address || "",
             district: address?.district || "",
             state: address?.state || "",
@@ -22,7 +22,7 @@ const AddressForm = ({ addressSubmit, address , checkout }) => {
         if (address && Object.keys(address).length > 0) {
             reset({
                 fullname: address?.fullname || "",
-                phone: address?.phone.split(" ")[1] || "",
+                phone: address?.phone?.split(" ")[1] || "",
                 address: address?.address || "",
                 district: address?.district || "",
                 state: address?.state || "",

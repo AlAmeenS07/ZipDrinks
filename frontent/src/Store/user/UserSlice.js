@@ -5,6 +5,7 @@ const initialState = {
     isLoggedIn : false,
     isVerified : false,
     userData : null,
+    accessToken : null,
     error : null,
 }
 
@@ -19,7 +20,12 @@ const userSlice = createSlice({
             state.loading = false;
         },
         loginSuccess : (state , action)=>{
-            state.userData = action.payload;
+            if(action.payload.accessToken){
+                state.accessToken = action.payload.accessToken
+            }
+            if(action.payload.userData){
+                state.userData = action.payload.userData;
+            }
             state.isLoggedIn = true;
             state.loading = false;
         },

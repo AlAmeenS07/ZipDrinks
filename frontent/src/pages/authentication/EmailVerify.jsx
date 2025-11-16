@@ -1,50 +1,50 @@
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { loadingEnd, loginFail, loginStart, loginSuccess, otpVerified } from '../../Store/user/UserSlice';
-import { useDispatch, useSelector } from 'react-redux';
+import { loginFail, loginStart, loginSuccess, otpVerified } from '../../Store/user/UserSlice';
+import { useDispatch } from 'react-redux';
 import { Loader } from "react-feather"
 import Otp from '../../Components/Otp';
 import axiosInstance from '../../Helper/AxiosInstance';
-import { useEffect } from 'react';
 
 const EmailVerify = () => {
 
+    const location = useLocation()
     const navigate = useNavigate()
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
-    const email = useSelector(state => state.user?.userData?.email)
+    const email = location.state.email
     const dispatch = useDispatch()
 
-    useEffect(() => {
-        async function getUser() {
-            dispatch(loginStart())
-            try {
+    // useEffect(() => {
+    //     async function getUser() {
+    //         dispatch(loginStart())
+    //         try {
 
-                let user = await axiosInstance.get(backendUrl + '/api/user/data')
+    //             let user = await axiosInstance.get(backendUrl + '/api/user/data')
 
-                if (user.data.success) {
-                    dispatch(loginSuccess(user.data.userData))
-                }
+    //             if (user.data.success) {
+    //                 dispatch(loginSuccess(user.data.userData))
+    //             }
 
-            } catch (error) {
-                toast.error(error.message)
-            }
-            finally {
-                dispatch(loadingEnd())
-            }
-        }
-        getUser()
-    }, [])
+    //         } catch (error) {
+    //             toast.error(error?.response?.data.message)
+    //         }
+    //         finally {
+    //             dispatch(loadingEnd())
+    //         }
+    //     }
+    //     getUser()
+    // }, [])
 
-    async function verifyOtp(otp) {
+    async function verifyOtp(otp , email) {
         try {
             dispatch(loginStart())
             let fullOtp = otp.join("")
 
-            const { data } = await axiosInstance.post(backendUrl + '/api/auth/verify-otp', { otp: fullOtp });
+            const { data } = await axiosInstance.post(backendUrl + '/api/auth/verify-otp', { otp: fullOtp , email });
 
             if (data.success) {
-                let user = await axiosInstance.get(backendUrl + '/api/user/data');
-                dispatch(loginSuccess(user.data.userData))
+                console.log(data.accessToken)
+                dispatch(loginSuccess({userData : data.user} , {accessToken : data.accessToken}))
                 dispatch(otpVerified())
                 toast.success("Verified Successfully")
                 navigate("/")
@@ -59,9 +59,9 @@ const EmailVerify = () => {
         }
     }
 
-    async function resendOtp() {
+    async function resendOtp(email) {
         try {
-            let { data } = await axiosInstance.post(backendUrl + '/api/auth/resend-otp', {}, { headers: { 'Content-Type': 'application/json' } });
+            let { data } = await axiosInstance.post(backendUrl + '/api/auth/resend-otp', {email}, { headers: { 'Content-Type': 'application/json' } });
             if (data.success) {
                 toast.success(data.message)
             }

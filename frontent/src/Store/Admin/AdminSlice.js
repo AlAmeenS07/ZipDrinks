@@ -38,6 +38,7 @@ const adminSlice = createSlice({
             state.adminData = null;
             state.loading = false;
             state.isLoggedIn = false;
+            state.accessToken = null
             state.error = null;
             localStorage.removeItem("adminData")
         }
@@ -61,6 +62,6 @@ const adminSlice = createSlice({
 
 })
 
-export const { loadStart, loadEnd, adminOut } = adminSlice.actions;
+export const { loadStart, loadEnd, adminOut , adminLoginSuccess } = adminSlice.actions;
 
 export default adminSlice.reducer;

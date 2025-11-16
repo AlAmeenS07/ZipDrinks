@@ -24,11 +24,10 @@ const Login = () => {
     async function loginSubmit(data) {
         dispatch(loginStart())
         try {
-            let res = await axiosInstance.post(backendurl + '/api/auth/login', { email: data.email, password: data.password })
+            let res = await axiosInstance.post('/api/auth/login', { email: data.email, password: data.password })
 
             if (res.data.success) {
-                let user = await axiosInstance.get(backendurl + '/api/user/data');
-                dispatch(loginSuccess(user.data.userData))
+                dispatch(loginSuccess({userData :res.data.user , accessToken : res.data.accessToken }))
                 navigate('/')
             } else {
                 dispatch(loadingEnd())
@@ -36,7 +35,7 @@ const Login = () => {
             }
 
         } catch (error) {
-            toast.error(error.response.data.message)
+            toast.error(error?.response?.data?.message)
         }
         finally{
             dispatch(loadingEnd())

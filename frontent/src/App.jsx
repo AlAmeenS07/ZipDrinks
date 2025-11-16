@@ -6,7 +6,6 @@ import EmailVerify from "./pages/authentication/EmailVerify"
 import Navbar from "./Components/Navbar"
 import { ToastContainer } from "react-toastify"
 import { useDispatch, useSelector } from "react-redux"
-import { loadingEnd, loginStart, loginSuccess, logout, otpVerified } from "./Store/user/UserSlice"
 import { useEffect } from "react"
 import ForgotPassword from "./pages/authentication/ForgotPassword"
 import About from "./pages/About/About"
@@ -18,7 +17,6 @@ import AdminCustomers from "./pages/Admin/AdminCustomers"
 import AdminOrders from "./pages/Admin/Orders/AdminOrders.jsx"
 import AdminProducts from "./pages/Admin/Products/AdminProducts.jsx"
 import { fetchAdminData } from "./Store/Admin/AdminSlice.js"
-import axiosInstance from "./Helper/AxiosInstance.js"
 import AdminProtectedRoute from "./Components/Admin/AdminProtectedRoute.jsx"
 import AdminCategory from "./pages/Admin/AdminCategory.jsx"
 import AdminCategoryAdd from "./pages/Admin/AdminCategoryAdd.jsx"
@@ -56,7 +54,6 @@ import AdminSales from "./pages/Admin/AdminSales.jsx"
 
 function App() {
 
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const location = useLocation()
   const hideNavbar = location.pathname.startsWith('/admin')
   const isLoggedIn = useSelector(state => state.user.isLoggedIn)
@@ -77,39 +74,6 @@ function App() {
       dispatch(fetchCart())
     }
   }, [isLoggedIn, dispatch, hideNavbar])
-
-  useEffect(() => {
-    if (!hideNavbar) {
-
-      async function getUser() {
-        dispatch(loginStart())
-        try {
-
-          let user = await axiosInstance.get(backendUrl + '/api/user/data')
-
-          if (user.data.success) {
-            if (user.data.userData.isVerified) {
-              dispatch(loginSuccess(user.data.userData))
-              dispatch(otpVerified())
-            }
-          } else {
-            let res = await axiosInstance.post(backendUrl + '/api/auth/logout');
-            if (res.data.success) {
-              dispatch(logout())
-            }
-          }
-
-        } catch (error) {
-          console.log(error.message)
-        }
-        finally {
-          dispatch(loadingEnd())
-        }
-      }
-      getUser()
-    }
-  }, [hideNavbar])
-
 
   return (
     <>

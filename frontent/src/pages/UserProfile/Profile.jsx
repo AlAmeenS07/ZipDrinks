@@ -7,6 +7,8 @@ import { User } from 'lucide-react'
 const Profile = () => {
     const user = useSelector(state => state.user?.userData)
 
+    console.log(user)
+
     useEffect(()=>{
         
     },[user])

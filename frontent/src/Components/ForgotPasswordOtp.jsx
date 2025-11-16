@@ -14,7 +14,7 @@ const ForgotPasswordOtp = ({setFpOtp , setNewPassword }) => {
         dispatch(loginStart())
         try {
             let fullOtp = otp.join('')
-            let {data} = await axiosInstance.post(backendUrl + '/api/auth/verify-reset-password-otp' , {otp : fullOtp})
+            let { data } = await axiosInstance.post(backendUrl + '/api/auth/verify-reset-password-otp' , {otp : fullOtp})
 
             if(data.success){
                 toast.success("Verified")
@@ -25,7 +25,7 @@ const ForgotPasswordOtp = ({setFpOtp , setNewPassword }) => {
             }
             
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error.response.data.message)
             dispatch(loginFail())
         }
         finally{

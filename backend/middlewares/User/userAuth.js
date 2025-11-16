@@ -2,14 +2,15 @@ import jwt from "jsonwebtoken";
 
 export const userAuth = async (req, res, next) => {
 
-    const { token } = req.cookies;
-    if (!token) {
+    const accessToken = req.headers?.authorization?.split(" ")[1];
+
+    if (!accessToken) {
         return res.status(401).json({ success: false, message: "Not Authorized" })
     }
 
     try {
 
-        const tokenDecode = jwt.verify(token, process.env.JWT_SECRET);
+        const tokenDecode = jwt.verify(accessToken, process.env.JWT_SECRET);
 
         if (!tokenDecode.id) {
             return res.status(401).json({ success: false, message: "Not Authorized" });
@@ -50,15 +51,16 @@ export const verifyTempToken = async (req, res, next) => {
 }
 
 export const getUserId = async (req, res, next) => {
-    const { token } = req.cookies;
 
-    if (!token) {
+    const accessToken  = req.headers?.authorization?.split(" ")[1];
+
+    if (!accessToken) {
         return res.status(401).json({ success: false, message: "Not Authorized" })
     }
 
     try {
 
-        const tokenDecode = jwt.verify(token, process.env.JWT_SECRET);
+        const tokenDecode = jwt.verify(accessToken, process.env.JWT_SECRET);
 
         if (tokenDecode.id) {
             req.userId = tokenDecode.id

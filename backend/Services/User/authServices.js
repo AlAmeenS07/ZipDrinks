@@ -5,6 +5,7 @@ import userModel from "../../models/userModel.js";
 import transporter from "../../confiq/nodemailer.js";
 import cache from "../../utils/nodeCache.js";
 import walletModel from "../../models/wallet.js";
+import { genAccessToken, genRefreshToken } from "../../utils/token.js";
 
 dotenv.config();
 
@@ -82,7 +83,7 @@ export const registerUser = async (req, res) => {
             amount: 100,
             type: "credit",
             description: `Referral Bonus for inviting ${fullname}`,
-            transactionId : await transactionIdCreator()
+            transactionId: await transactionIdCreator()
           });
           await referWallet.save();
 
@@ -91,7 +92,7 @@ export const registerUser = async (req, res) => {
             amount: 50,
             type: "credit",
             description: `Referral Bonus for signing up with ${referredBy}`,
-            transactionId : await transactionIdCreator()
+            transactionId: await transactionIdCreator()
           });
           await wallet.save();
         }
@@ -100,15 +101,6 @@ export const registerUser = async (req, res) => {
 
     cache.set(`verify_${email}`, otp, 60);
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
-
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
-
     await transporter.sendMail({
       from: process.env.SENDER_EMAIL,
       to: email,
@@ -116,7 +108,7 @@ export const registerUser = async (req, res) => {
       text: `Your OTP is: ${otp}`,
     });
 
-    return res.status(201).json({ success: true, message: "OTP sent to email" });
+    return res.status(201).json({ success: true, message: "OTP sent to email", email });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
@@ -142,7 +134,7 @@ export const loginUser = async (req, res) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).json({ success: false, message: "Invalid Password" });
+      return res.status(400).json({ success: false, message: "Invalid Password" });
     }
 
     if (!user.isVerified) {
@@ -153,16 +145,18 @@ export const loginUser = async (req, res) => {
       return res.status(403).json({ success: false, message: "You are blocked by admin!" });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+    const accessToken = genAccessToken(user._id)
+    const refreshToken = genRefreshToken(user._id)
 
-    res.cookie("token", token, {
+    res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.status(200).json({ success: true, message: "Login successful" });
+
+    return res.status(200).json({ success: true, message: "Login successful", user, accessToken });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
@@ -171,7 +165,7 @@ export const loginUser = async (req, res) => {
 
 export const logoutUser = async (req, res) => {
   try {
-    res.clearCookie("token", {
+    res.clearCookie("refreshToken", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
@@ -184,9 +178,9 @@ export const logoutUser = async (req, res) => {
 
 
 export const resendVerifyOtpService = async (req, res) => {
-  const { userId } = req.body;
+  const { email } = req.body;
   try {
-    const user = await userModel.findById(userId);
+    const user = await userModel.findOne({ email });
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found!" });
     }
@@ -213,13 +207,14 @@ export const resendVerifyOtpService = async (req, res) => {
 
 
 export const verifyEmailService = async (req, res) => {
-  const { userId, otp } = req.body;
-  if (!userId || !otp) {
+  const { email, otp } = req.body;
+
+  if (!email || !otp) {
     return res.status(400).json({ success: false, message: "Missing Details!" });
   }
 
   try {
-    const user = await userModel.findById(userId);
+    const user = await userModel.findOne({ email });
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found!" });
     }
@@ -237,7 +232,17 @@ export const verifyEmailService = async (req, res) => {
     await user.save();
     cache.del(`verify_${user.email}`);
 
-    return res.status(200).json({ success: true, message: "Email verified successfully" });
+    const accessToken = genAccessToken(user._id)
+    const refreshToken = genRefreshToken(user._id)
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({ success: true, message: "Email verified successfully", user, accessToken });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
@@ -404,5 +409,35 @@ export const googleSignInService = async (req, res) => {
     return res.redirect(`${process.env.FRONTEND_URL}/google-callback`);
   } catch (error) {
     return res.redirect(`${process.env.FRONTENT_URL}/login?error=${error.message}`)
+  }
+};
+
+
+export const refreshTokenService = async (req, res) => {
+  try {
+    const token = req.cookies.refreshToken;
+
+    if (!token) {
+      return res.status(401).json({ success: false, message: "Not Authorized!" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await userModel.findById(decoded.id);
+
+    if(user.isBlocked){
+      return res.status(403).json({success : false , message : "User is blocked"})
+    }
+
+    const newAccessToken = genAccessToken(decoded.id);
+
+    return res.json({
+      success: true,
+      accessToken: newAccessToken,
+      userData: user
+    });
+
+  } catch (error) {
+    return res.status(401).json({ success: false, message: "Invalid refresh token" });
   }
 };

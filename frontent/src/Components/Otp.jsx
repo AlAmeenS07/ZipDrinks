@@ -85,7 +85,7 @@ const Otp = ({ verifyOtp, resendOtp, email }) => {
                     onClick={() => {
                       setTimer(59)
                       setOtp(['' , '' , '' , '' , '' , ''])
-                      resendOtp()
+                      resendOtp(email)
                     }}
                     className="text-teal-600 hover:text-teal-700 font-medium cursor-pointer"
                   >
@@ -99,7 +99,7 @@ const Otp = ({ verifyOtp, resendOtp, email }) => {
             <button
               type="submit"
               disabled={loading}
-              onClick={() => verifyOtp(otp)}
+              onClick={() => verifyOtp(otp , email)}
               className={`relative w-full flex items-center justify-center gap-2 my-4 
                   py-2.5 rounded-lg font-medium text-white transition-all duration-300
                   ${loading

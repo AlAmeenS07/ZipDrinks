@@ -10,7 +10,8 @@ import {
   resetPasswordService,
   isAuthService,
   verifyTempService,
-  googleSignInService
+  googleSignInService,
+  refreshTokenService
 } from "../../Services/User/authServices.js";
 
 
@@ -72,4 +73,9 @@ export const verifyTemp = async (req, res) => {
 // google signin
 export const googleSignIn = async (req, res) => {
     await googleSignInService(req, res);
+}
+
+
+export const refreshToken = async(req , res)=>{
+    await refreshTokenService(req , res)
 }

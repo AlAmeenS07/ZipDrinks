@@ -31,7 +31,7 @@ const Signup = () => {
 
             if (res.data.success) {
                 dispatch(loadingEnd())
-                navigate("/email-verify")
+                navigate("/email-verify" , {state : {email : data.email}})
             } else {
                 toast.error(res.data.message || "Something went wrong !")
                 console.log(res.data)
