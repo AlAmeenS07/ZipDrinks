@@ -1,6 +1,7 @@
 import orderModel from "../../models/orderModel.js";
 import productModel from "../../models/productModel.js";
 import walletModel from "../../models/wallet.js";
+import { BAD_REQUEST, NOT_FOUND, SERVER_ERROR, SUCCESS, TAX_PERCENT } from "../../utils/constants.js";
 import { transactionIdCreator } from "../User/authServices.js";
 
 export const getOrdersService = async (req, res) => {
@@ -65,10 +66,10 @@ export const getOrdersService = async (req, res) => {
       .limit(limitNumber);
 
     if (!orders || orders.length === 0) {
-      return res.status(404).json({ success: false, message: "No orders found!" });
+      return res.status(NOT_FOUND).json({ success: false, message: "No orders found!" });
     }
 
-    return res.status(200).json({
+    return res.status(SUCCESS).json({
       success: true,
       message: "Orders fetched successfully!",
       totalOrders,
@@ -78,7 +79,7 @@ export const getOrdersService = async (req, res) => {
     });
 
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(SERVER_ERROR).json({ success: false, message: error.message });
   }
 };
 
@@ -89,13 +90,13 @@ export const getSingleOrderService = async (req, res) => {
     let order = await orderModel.findById(orderId).populate("userId");
 
     if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found!" });
+      return res.status(NOT_FOUND).json({ success: false, message: "Order not found!" });
     }
 
-    return res.status(200).json({ success: true, message: "Order fetched successfully", order });
+    return res.status(SUCCESS).json({ success: true, message: "Order fetched successfully", order });
 
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(SERVER_ERROR).json({ success: false, message: error.message });
   }
 };
 
@@ -106,12 +107,12 @@ export const changeOrderStatusService = async (req, res) => {
 
   try {
     if (!orderId || !status) {
-      return res.status(400).json({ success: false, message: "Missing details!" });
+      return res.status(BAD_REQUEST).json({ success: false, message: "Missing details!" });
     }
 
     let orderDetail = await orderModel.findById(orderId);
     if (!orderDetail) {
-      return res.status(404).json({ success: false, message: "Order not found!" });
+      return res.status(NOT_FOUND).json({ success: false, message: "Order not found!" });
     }
 
     if (status === "cancelled") {
@@ -139,14 +140,14 @@ export const changeOrderStatusService = async (req, res) => {
 
     await orderDetail.save();
 
-    return res.status(200).json({
+    return res.status(SUCCESS).json({
       success: true,
       message: "Order status updated successfully!",
       order: orderDetail,
     });
 
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(SERVER_ERROR).json({ success: false, message: error.message });
   }
 };
 
@@ -159,7 +160,7 @@ export const approveOrderReturnService = async (req, res) => {
     let order = await orderModel.findById(orderId);
 
     if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found!" });
+      return res.status(NOT_FOUND).json({ success: false, message: "Order not found!" });
     }
 
     order.orderStatus = status || "returned";
@@ -210,10 +211,10 @@ export const approveOrderReturnService = async (req, res) => {
 
     await order.save();
 
-    return res.status(200).json({ success: true, message: "Order return approved", order });
+    return res.status(SUCCESS).json({ success: true, message: "Order return approved", order });
 
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(SERVER_ERROR).json({ success: false, message: error.message });
   }
 };
 
@@ -225,18 +226,18 @@ export const approveOrderItemReturnService = async (req, res) => {
   try {
     let order = await orderModel.findById(orderId);
     if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found!" });
+      return res.status(NOT_FOUND).json({ success: false, message: "Order not found!" });
     }
 
     let item = order.items.find(i => i.sku === sku);
     if (!item) {
-      return res.status(404).json({ success: false, message: "Order item not found!" });
+      return res.status(NOT_FOUND).json({ success: false, message: "Order item not found!" });
     }
 
     item.status = status || "returned";
     item.returnApprove = true;
 
-    let refundTax = item.subTotal * 0.18;
+    let refundTax = item.subTotal * TAX_PERCENT;
     let refundAmount = item.subTotal + refundTax;
 
     if (order.couponAmount && order.couponAmount > 0 && order.subTotal > 0) {
@@ -286,9 +287,9 @@ export const approveOrderItemReturnService = async (req, res) => {
     await wallet.save();
     await order.save();
 
-    return res.status(200).json({ success: true, message: "Order item returned successfully", order });
+    return res.status(SUCCESS).json({ success: true, message: "Order item returned successfully", order });
 
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(SERVER_ERROR).json({ success: false, message: error.message });
   }
 };

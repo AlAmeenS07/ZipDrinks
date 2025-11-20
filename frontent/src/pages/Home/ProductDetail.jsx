@@ -193,7 +193,9 @@ const ProductDetail = () => {
                                             ₹{selectedVariant.price || selectedVariant.price}
                                         </span>
                                     ) : ""}
-                                    <span className='text-red-600 text-sm'>{selectedVariant?.quantity <= 0 ? "Stock out" : ""}</span>
+                                        <span className={selectedVariant.quantity <= 0 ?`text-red-600 text-sm` : selectedVariant.quantity <= 10 ? `text-orange-600 text-sm` : `text-green-600 text-sm` }>
+                                            {selectedVariant?.quantity <= 0 ? "Stock out" : `Stock left : ${selectedVariant.quantity}`}
+                                        </span>
                                 </div>
                             </div>
                         )}
@@ -254,13 +256,13 @@ const ProductDetail = () => {
                 <div className="bg-white rounded-lg border border-gray-200 my-6">
                     <div className="border-b border-gray-200">
                         <div className="flex">
-                            <button
+                            {/* <button
                                 onClick={() => setActiveTab('reviews')}
                                 className={`w-1/2 px-3 md:px-8 py-2 md:py-4 font-medium border-b-2 transition-colors 
                                     ${activeTab === 'reviews' ? 'border-gray-900 text-gray-900'
                                         : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
                                 All Reviews
-                            </button>
+                            </button> */}
                             <button
                                 onClick={() => setActiveTab('description')}
                                 className={`w-1/2 px-3 md:px-8 py-2 md:py-4 font-medium border-b-2 transition-colors 

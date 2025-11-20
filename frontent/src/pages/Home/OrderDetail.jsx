@@ -43,6 +43,9 @@ const OrderDetail = () => {
                 if (!value.trim()) {
                     return 'Reason is required!';
                 }
+                if(value.length > 25){
+                    return 'Reason must be lessthan 25 letters !'
+                }
             },
             showCancelButton: true,
             confirmButtonText: 'Submit',
@@ -100,7 +103,7 @@ const OrderDetail = () => {
                     toast.error(data.message);
                 }
             } catch (error) {
-                toast.error(error.message);
+                toast.error(error?.response?.data?.message);
             }
         }
     }

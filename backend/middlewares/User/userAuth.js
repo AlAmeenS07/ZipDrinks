@@ -1,11 +1,12 @@
 import jwt from "jsonwebtoken";
+import { GONE, SERVER_ERROR, UNAUTHORIZED } from "../../utils/constants.js";
 
 export const userAuth = async (req, res, next) => {
 
     const accessToken = req.headers?.authorization?.split(" ")[1];
 
     if (!accessToken) {
-        return res.status(401).json({ success: false, message: "Not Authorized" })
+        return res.status(UNAUTHORIZED).json({ success: false, message: "Not Authorized" })
     }
 
     try {
@@ -13,7 +14,7 @@ export const userAuth = async (req, res, next) => {
         const tokenDecode = jwt.verify(accessToken, process.env.JWT_SECRET);
 
         if (!tokenDecode.id) {
-            return res.status(401).json({ success: false, message: "Not Authorized" });
+            return res.status(UNAUTHORIZED).json({ success: false, message: "Not Authorized" });
         }
 
         req.body.userId = tokenDecode.id;
@@ -21,7 +22,7 @@ export const userAuth = async (req, res, next) => {
         next()
 
     } catch (error) {
-        return res.status(500).json({ success: false, message: error.message })
+        return res.status(SERVER_ERROR).json({ success: false, message: error.message })
     }
 }
 
@@ -30,7 +31,7 @@ export const verifyTempToken = async (req, res, next) => {
     const { tempToken } = req.cookies;
 
     if (!tempToken) {
-        return res.status(410).json({ success: false, message: "You time out" })
+        return res.status(GONE).json({ success: false, message: "You time out" })
     }
 
     try {
@@ -40,13 +41,13 @@ export const verifyTempToken = async (req, res, next) => {
         if (tokenDecode.email) {
             req.body.email = tokenDecode.email
         } else {
-            return res.status(410).json({ success: false, message: "Your time out" })
+            return res.status(GONE).json({ success: false, message: "Your time out" })
         }
 
         next()
 
     } catch (error) {
-        return res.status(500).json({ success: false, message: error.message })
+        return res.status(SERVER_ERROR).json({ success: false, message: error.message })
     }
 }
 
@@ -55,7 +56,7 @@ export const getUserId = async (req, res, next) => {
     const accessToken  = req.headers?.authorization?.split(" ")[1];
 
     if (!accessToken) {
-        return res.status(401).json({ success: false, message: "Not Authorized" })
+        return res.status(UNAUTHORIZED).json({ success: false, message: "Not Authorized" })
     }
 
     try {
@@ -65,13 +66,13 @@ export const getUserId = async (req, res, next) => {
         if (tokenDecode.id) {
             req.userId = tokenDecode.id
         } else {
-            return res.status(401).json({ success: false, message: "Not Authorized" })
+            return res.status(UNAUTHORIZED).json({ success: false, message: "Not Authorized" })
         }
 
         next()
 
     } catch (error) {
-        return res.status(500).json({ success: false, message: error.message })
+        return res.status(SERVER_ERROR).json({ success: false, message: error.message })
     }
 
 }

@@ -1,4 +1,5 @@
 import userModel from "../../models/userModel.js";
+import { NOT_FOUND, SERVER_ERROR, SUCCESS } from "../../utils/constants.js";
 
 export const getCustomersService = async (req, res) => {
   try {
@@ -8,8 +9,8 @@ export const getCustomersService = async (req, res) => {
 
     if (search) {
       query.$or = [
-        { fullname: { $regex: `^${search}`, $options: 'i' } },
-        { email: { $regex: `^${search}`, $options: 'i' } },
+        { fullname: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
       ];
     }
 
@@ -28,7 +29,7 @@ export const getCustomersService = async (req, res) => {
       .limit(limit)
       .sort({ createdAt: -1 });
 
-    return res.status(200).json({
+    return res.status(SUCCESS).json({
       success: true,
       message: "Customers fetched successfully",
       customers,
@@ -38,7 +39,7 @@ export const getCustomersService = async (req, res) => {
     });
 
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(SERVER_ERROR).json({ success: false, message: error.message });
   }
 };
 
@@ -50,7 +51,7 @@ export const blockUnblockCustomerService = async (req, res) => {
     let customer = await userModel.findById(customerId);
 
     if (!customer) {
-      return res.status(404).json({ success: false, message: "User not found!" });
+      return res.status(NOT_FOUND).json({ success: false, message: "User not found!" });
     }
 
     if (customer.isBlocked) {
@@ -61,9 +62,9 @@ export const blockUnblockCustomerService = async (req, res) => {
 
     await customer.save();
 
-    return res.status(200).json({ success: true, message: "Updated successfully", customer });
+    return res.status(SUCCESS).json({ success: true, message: "Updated successfully", customer });
 
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(SERVER_ERROR).json({ success: false, message: error.message });
   }
 };

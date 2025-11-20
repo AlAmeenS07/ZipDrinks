@@ -4,6 +4,7 @@ import userModel from "../../models/userModel.js";
 import cache from "../../utils/nodeCache.js";
 import dotenv from "dotenv"
 import addressModel from "../../models/addressModel.js";
+import { BAD_REQUEST, CACHE_TIME, CONFLICT, CREATED, FORBIDDENT, GONE, NOT_FOUND, SERVER_ERROR, SIX_DIGIT_MIN_VALUE, SIX_DIGIT_RANGE_VALUE, SUCCESS, UNAUTHORIZED } from "../../utils/constants.js";
 
 dotenv.config()
 
@@ -16,25 +17,17 @@ export const getUserDataService = async (req, res) => {
     const user = await userModel.findById(userId);
 
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res.status(NOT_FOUND).json({ success: false, message: "User not found" });
     }
 
     if (user.isBlocked) {
-      return res.status(403).json({ success: false, message: "You are blocked by admin !" })
+      return res.status(FORBIDDENT).json({ success: false, message: "You are blocked by admin !" })
     }
 
-    if (user?.profileImage) {
-      return res.status(200).json({
-        success: true, userData: user
-      })
-    }
-
-    return res.status(200).json({
-      success: true, userData: user
-    });
+    return res.status(SUCCESS).json({ success: true, userData: user });
 
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(SERVER_ERROR).json({ success: false, message: error.message });
   }
 };
 
@@ -56,20 +49,20 @@ export const editUserDataService = async (req, res) => {
         let update = await userModel.findByIdAndUpdate(userId, { $set: { fullname, email, phone, profileImage } }, { new: true });
 
         if (!update) {
-          return res.status(404).json({ success: false, message: "Something went wrong !" })
+          return res.status(NOT_FOUND).json({ success: false, message: "Something went wrong !" })
         }
 
-        return res.status(200).json({ success: true, message: "Updated Successfully", userData: update })
+        return res.status(SUCCESS).json({ success: true, message: "Updated Successfully", userData: update })
 
       } else {
 
         let update = await userModel.findByIdAndUpdate(userId, { $set: { fullname, email, phone } }, { new: true });
 
         if (!update) {
-          return res.status(404).json({ success: false, message: "Something went wrong !" })
+          return res.status(NOT_FOUND).json({ success: false, message: "Something went wrong !" })
         }
 
-        return res.status(200).json({ success: true, message: "Updated Successfully", userData: update })
+        return res.status(SUCCESS).json({ success: true, message: "Updated Successfully", userData: update })
 
       }
 
@@ -79,7 +72,7 @@ export const editUserDataService = async (req, res) => {
       const existUser = await userModel.findOne({ email })
 
       if (existUser) {
-        return res.status(409).json({ success: false, message: "Email Already Exists !" })
+        return res.status(CONFLICT).json({ success: false, message: "Email Already Exists !" })
       }
 
       if (profileImage) {
@@ -89,9 +82,9 @@ export const editUserDataService = async (req, res) => {
         editData = { fullname, email, phone }
       }
 
-      const otp = String(Math.floor(100000 + Math.random() * 900000));
+      const otp = String(Math.floor(SIX_DIGIT_MIN_VALUE + Math.random() * SIX_DIGIT_RANGE_VALUE));
 
-      cache.set(`edit_${user.email}`, otp, 60)
+      cache.set(`edit_${user.email}`, otp, CACHE_TIME)
 
       await transporter.sendMail({
         from: process.env.SENDER_EMAIL,
@@ -100,12 +93,12 @@ export const editUserDataService = async (req, res) => {
         text: `Your OTP is: ${otp}`,
       });
 
-      res.status(200).json({ success: true, message: "Edit email OTP send to mail !", otp, email })
+      res.status(SUCCESS).json({ success: true, message: "Edit email OTP send to mail !", otp, email })
 
     }
 
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message })
+    return res.status(SERVER_ERROR).json({ success: false, message: error.message })
   }
 
 }
@@ -119,36 +112,36 @@ export const verifyEditEmialOtpService = async (req, res) => {
     const user = await userModel.findById(userId)
 
     if (!user) {
-      return res.status(401).json({ success: false, message: "Something went wrong !" })
+      return res.status(UNAUTHORIZED).json({ success: false, message: "Something went wrong !" })
     }
 
     if (!otp) {
-      return res.status(400).json({ success: false, message: "OTP not found !" })
+      return res.status(BAD_REQUEST).json({ success: false, message: "OTP not found !" })
     }
 
     let cachedOtp = cache.get(`edit_${user.email}`)
 
     if (!cachedOtp) {
-      return res.status(410).json({ success: false, message: "Otp expires !" })
+      return res.status(GONE).json({ success: false, message: "Otp expires !" })
     }
 
     if (cachedOtp !== otp) {
-      return res.status(400).json({ success: false, message: "Invalid Otp !" })
+      return res.status(BAD_REQUEST).json({ success: false, message: "Invalid Otp !" })
     }
 
     let update = await userModel.findByIdAndUpdate(userId, { $set: editData }, { new: true });
 
     if (!update) {
-      return res.status(404).json({ success: false, message: "Something went wrong !" })
+      return res.status(NOT_FOUND).json({ success: false, message: "Something went wrong !" })
     }
 
     editData = {}
     cache.del(`edit_${user.email}`);
 
-    return res.status(200).json({ success: true, message: "Updated Successfully", userData: update })
+    return res.status(SUCCESS).json({ success: true, message: "Updated Successfully", userData: update })
 
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message })
+    res.status(SERVER_ERROR).json({ success: false, message: error.message })
   }
 }
 
@@ -162,11 +155,11 @@ export const resendEditEmailOtpService = async (req , res)=>{
         const user = await userModel.findById(userId);
 
         if(!user){
-          return res.status(404).json({success : false , message : "No user Found !"})
+          return res.status(NOT_FOUND).json({success : false , message : "No user Found !"})
         }
 
-        const otp = String(Math.floor(100000 + Math.random() * 900000));
-        cache.set(`edit_${user.email}`, otp, 60);
+        const otp = String(Math.floor(SIX_DIGIT_MIN_VALUE + Math.random() * SIX_DIGIT_RANGE_VALUE));
+        cache.set(`edit_${user.email}`, otp, CACHE_TIME);
     
         await transporter.sendMail({
           from: process.env.SENDER_EMAIL,
@@ -175,9 +168,9 @@ export const resendEditEmailOtpService = async (req , res)=>{
           text: `Your new reset email OTP is: ${otp}`,
         });
     
-        return res.status(200).json({ success: true, message: "Reset email OTP resent to email." });
+        return res.status(SUCCESS).json({ success: true, message: "Reset email OTP resent to email." });
       } catch (error) {
-        return res.status(500).json({ success: false, message: error.message });
+        return res.status(SERVER_ERROR).json({ success: false, message: error.message });
       }
 }
 
@@ -191,31 +184,31 @@ export const changePasswordService = async (req , res)=>{
       const user = await userModel.findById(userId)
 
       if(!user){
-          return res.status(404).json({success : false , message : "Something went wrong !"})
+          return res.status(NOT_FOUND).json({success : false , message : "Something went wrong !"})
       }
 
       if(password !== confirmPassword){
-        return res.status(400).json({success : false , message : "Password must be match !"})
+        return res.status(BAD_REQUEST).json({success : false , message : "Password must be match !"})
       }
 
       if(!user?.password){
-        return res.json({success : false , message : "You are signup using google !"})
+        return res.status(NOT_FOUND).json({success : false , message : "You are signup using google !"})
       }
 
       const isMatch = await bcrypt.compare(currentPassword, user.password);
 
       if(!isMatch){
-        return res.status(401).json({success : false , message : "Invalid Password !"})
+        return res.status(UNAUTHORIZED).json({success : false , message : "Invalid Password !"})
       }
 
       const hashPassword = await bcrypt.hash(password, 10);
 
       let updatePassword = await userModel.findByIdAndUpdate(userId , {$set : {password : hashPassword} } , {new : true})
 
-      return res.status(200).json({success : true , message : "Password Updated Successfully"})
+      return res.status(SUCCESS).json({success : true , message : "Password Updated Successfully"})
       
     } catch (error) {
-      res.status(500).json({success : false , message : error.message})
+      res.status(SERVER_ERROR).json({success : false , message : error.message})
     }
 }
 
@@ -224,21 +217,21 @@ export const userAddressAddService = async (req , res)=>{
     try {
 
       if(!userId){
-        return res.status(401).json({success : false ,  message : "Something went wrong !"})
+        return res.status(UNAUTHORIZED).json({success : false ,  message : "Something went wrong !"})
       }
 
       if(!fullname.trim() || !phone.trim() || !address.trim() || !district.trim() || !state.trim() ||
         ! landmark.trim() || ! pincode.trim()){
-          return res.status(400).json({success : false , message : "Missing Detail !"})
+          return res.status(BAD_REQUEST).json({success : false , message : "Missing Detail !"})
       }
 
       let addAddress = new addressModel({ userId , fullname , phone , address , district , state , landmark , pincode })
       await addAddress.save()
 
-      res.status(201).json({success : true , message : "Address added successfully"})
+      res.status(CREATED).json({success : true , message : "Address added successfully"})
       
     } catch (error) {
-        return res.status(500).json({success : false , message : error.message})
+        return res.status(SERVER_ERROR).json({success : false , message : error.message})
     }
 }
 
@@ -248,19 +241,19 @@ export const getUserAddressService = async(req , res)=>{
     try {
 
       if(!userId){
-        return res.status(401).json({success : false , message : "Something went wrong !"})
+        return res.status(UNAUTHORIZED).json({success : false , message : "Something went wrong !"})
       }
 
       let address = await addressModel.find({userId , isDeleted : false})
 
       if(!address){
-        return res.status(404).json({success : false , message : "Something went wrong !"})
+        return res.status(NOT_FOUND).json({success : false , message : "Something went wrong !"})
       }
 
-      res.status(200).json({success : true , message : "Address fetched successfully" , address})
+      res.status(SUCCESS).json({success : true , message : "Address fetched successfully" , address})
       
     } catch (error) {
-      res.status(500).json({success : false , message : error.message})
+      res.status(SERVER_ERROR).json({success : false , message : error.message})
     }
 }
 
@@ -272,13 +265,13 @@ export const getOneAddressService = async(req , res)=>{
       const address = await addressModel.findById(addressId);
 
       if(!address){
-        return res.status(404).json({success : false , message : "Something went wrong !"})
+        return res.status(NOT_FOUND).json({success : false , message : "Something went wrong !"})
       }
 
-      res.status(200).json({success : true , message : "Address fetched successfully" , address})
+      res.status(SUCCESS).json({success : true , message : "Address fetched successfully" , address})
 
     } catch (error) {
-        return res.status(500).json({success : false , message : error.message})
+        return res.status(SERVER_ERROR).json({success : false , message : error.message})
     }
 }
 
@@ -289,15 +282,15 @@ export const editAddressService = async (req , res)=>{
     try {
 
       if(!updatedData || !addressId){
-        return res.status(400).json({success : false , message : "Something went wrong !"})
+        return res.status(BAD_REQUEST).json({success : false , message : "Something went wrong !"})
       }
 
       let updateAddress = await addressModel.findByIdAndUpdate(addressId , {$set : updatedData} , {new : true})
 
-      res.status(200).json({success : true , message : "Address Updated Successfully"})
+      res.status(SUCCESS).json({success : true , message : "Address Updated Successfully"})
       
     } catch (error) {
-        res.status(500).json({success : false , message : error.message})
+        res.status(SERVER_ERROR).json({success : false , message : error.message})
     }
 }
 
@@ -309,12 +302,12 @@ export const deleteAddressService = async(req , res)=>{
         let deleteAddress = await addressModel.findByIdAndUpdate(addressId , {$set : {isDeleted : true}})
 
         if(!deleteAddress){
-          return res.status(404).json({success : false , message : "Something went wrong !"})
+          return res.status(NOT_FOUND).json({success : false , message : "Something went wrong !"})
         }
 
-        res.status(200).json({success : true , message : "Address deleted successfully"})
+        res.status(SUCCESS).json({success : true , message : "Address deleted successfully"})
       
     } catch (error) {
-        res.status(500).json({success : false , message : error.message})
+        res.status(SERVER_ERROR).json({success : false , message : error.message})
     }
 }

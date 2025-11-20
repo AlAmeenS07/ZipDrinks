@@ -15,7 +15,10 @@ const AdminRouter = express.Router()
 
 AdminRouter.post('/login' , adminLogin);
 AdminRouter.post('/logout' , adminLogout);
-AdminRouter.get('/data' , getAdminId , getAdminData)
+
+AdminRouter.use(getAdminId)
+
+AdminRouter.get('/data' , getAdminData)
 
 AdminRouter.get('/customers' , getCustomers)
 AdminRouter.patch('/customers/:customerId/status' , blockUnblockCustomer)

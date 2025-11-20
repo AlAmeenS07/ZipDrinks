@@ -71,6 +71,9 @@ const MyOrders = () => {
                 if (!value.trim()) {
                     return 'Reason is required!';
                 }
+                if(value.length > 25){
+                    return 'Reason must be lessthan 25 charectors !'
+                }
             },
             showCancelButton: true,
             confirmButtonText: 'Submit',

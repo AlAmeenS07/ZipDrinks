@@ -10,7 +10,7 @@ const Banner = () => {
     async function getBannerImages(){
       try {
 
-        const { data } = await axiosInstance.get('/api/admin/banner')
+        const { data } = await axiosInstance.get('/api/banner')
 
         if(data.success){
           setBannerImages(data.banners.filter(b => b.isListed))

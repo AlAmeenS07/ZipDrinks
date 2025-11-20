@@ -1,25 +1,29 @@
 import jwt from "jsonwebtoken"
+import userModel from "../../models/userModel.js";
+import { UNAUTHORIZED } from "../../utils/constants.js";
 
 export const getAdminId = async (req , res , next)=>{
-      const {adminToken} = req.cookies;
+      const adminAccessToken = req.headers?.authorization?.split(" ")[1];
     
-        if(!adminToken){
-            return res.status(401).json({success : false , message : "Not Authorized"})
+        if(!adminAccessToken){
+            return res.status(UNAUTHORIZED).json({success : false , message : "Not Authorized"})
         }
     
         try {
             
-            const tokenDecode = jwt.verify(adminToken , process.env.JWT_SECRET);
+            const tokenDecode = jwt.verify(adminAccessToken , process.env.JWT_SECRET);
     
             if(tokenDecode.id){
                 req.userId = tokenDecode.id
             }else{
-                return res.status(401).json({success : false , message : "Not Authorized"})
+                return res.status(UNAUTHORIZED).json({success : false , message : "Not Authorized"})
             }
+
+            const user = await userModel.findById(tokenDecode.id)
     
             next()
     
         } catch (error) {
-            return res.status(500).json({success : false , message : error.message})
+            return res.status(UNAUTHORIZED).json({success : false , message : error.message})
         }
 }

@@ -73,7 +73,7 @@ export default function Wallet() {
                         {/* Balance Card */}
                         <div className="bg-gray-50 rounded-2xl p-6 mb-8">
                             <p className="text-base md:text-lg text-gray-700">
-                                Available wallet balance : <span className="font-semibold">₹ {wallet[0]?.balance?.toFixed(2)}</span>
+                                Available wallet balance : <span className="font-semibold">₹ {wallet[0]?.balance?.toFixed(2) || 0}</span>
                             </p>
                         </div>
 

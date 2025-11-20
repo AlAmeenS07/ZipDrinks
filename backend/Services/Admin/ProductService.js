@@ -1,5 +1,6 @@
 import categoryModel from "../../models/categoryModel.js";
 import productModel from "../../models/productModel.js";
+import { BAD_REQUEST, CONFLICT, CREATED, NOT_FOUND, SERVER_ERROR, SUCCESS } from "../../utils/constants.js";
 
 export const addProductsServic = async (req, res) => {
     try {
@@ -14,13 +15,13 @@ export const addProductsServic = async (req, res) => {
             !store?.trim() || !life?.trim() || !coverImage?.trim() ||
             !variants?.length || !images?.length
         ) {
-            return res.status(400).json({ success: false, message: "Invalid Entries!" });
+            return res.status(BAD_REQUEST).json({ success: false, message: "Invalid Entries!" });
         }
 
         const existProduct = await productModel.findOne({ name });
 
         if (existProduct) {
-            return res.status(409).json({ success: false, message: "Product already exists!" });
+            return res.status(CONFLICT).json({ success: false, message: "Product already exists!" });
         }
 
         const categoryData = await categoryModel.findOne({ name: category });
@@ -67,18 +68,6 @@ export const addProductsServic = async (req, res) => {
             };
         });
 
-        // let appliedOffer;
-        // if (maxRedeemApplied) {
-        //     const highestMax = Math.max(maxRedeem || 0, categoryData.maxRedeem || 0);
-        //     appliedOffer = `₹${highestMax} Flat`;
-        // } else {
-        //     const firstVariant = updatedVariants[0];
-        //     const productDisc = getDiscountAmount(firstVariant.price, offer);
-        //     const categoryDisc = getDiscountAmount(firstVariant.price, categoryOffer);
-        //     appliedOffer = productDisc >= categoryDisc
-        //         ? (`${offer}% offer upto ₹${maxRedeem}`)
-        //         : (`${categoryOffer}% offer upto ₹${categoryData?.maxRedeem}`);
-        // }
 
         const product = new productModel({
             name, description, category, offer, maxRedeem, images, variants: updatedVariants,
@@ -87,10 +76,10 @@ export const addProductsServic = async (req, res) => {
 
         await product.save();
 
-        res.status(201).json({ success: true, message: "Product added successfully", product });
+        res.status(CREATED).json({ success: true, message: "Product added successfully", product });
 
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(SERVER_ERROR).json({ success: false, message: error.message });
     }
 };
 
@@ -123,10 +112,10 @@ export const getProductsService = async (req, res) => {
         let products = await productModel.find(query).sort(sortQuery).skip(skip).limit(limitPerPage);
 
         if (!products) {
-            return res.status(404).json({ success: false, message: "Something went wrong !" });
+            return res.status(NOT_FOUND).json({ success: false, message: "Something went wrong !" });
         }
 
-        res.status(200).json({
+        res.status(SUCCESS).json({
             success: true,
             message: "Products fetched successfully",
             products,
@@ -136,7 +125,7 @@ export const getProductsService = async (req, res) => {
         });
 
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(SERVER_ERROR).json({ success: false, message: error.message });
     }
 };
 
@@ -147,16 +136,16 @@ export const productListUnlistService = async (req, res) => {
         let product = await productModel.findById(productId);
 
         if (!product) {
-            return res.status(404).json({ success: false, message: "User not Found !" });
+            return res.status(NOT_FOUND).json({ success: false, message: "User not Found !" });
         }
 
         product.isListed = !product.isListed;
         await product.save();
 
-        res.status(200).json({ success: true, message: "Updated Successfully", product });
+        res.status(SUCCESS).json({ success: true, message: "Updated Successfully", product });
 
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(SERVER_ERROR).json({ success: false, message: error.message });
     }
 };
 
@@ -167,13 +156,13 @@ export const singleProductService = async (req, res) => {
         let product = await productModel.findById(productId);
 
         if (!product) {
-            return res.status(404).json({ success: false, message: "Something wrong !" });
+            return res.status(NOT_FOUND).json({ success: false, message: "Something wrong !" });
         }
 
-        res.status(200).json({ success: true, message: "Product fetched successfully", product });
+        res.status(SUCCESS).json({ success: true, message: "Product fetched successfully", product });
 
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(SERVER_ERROR).json({ success: false, message: error.message });
     }
 };
 
@@ -191,12 +180,12 @@ export const updateProductService = async (req, res) => {
             !ingredients?.trim() || !serve?.trim() || !store?.trim() || !life?.trim() ||
             !coverImage?.trim() || !variants?.length || !images?.length
         ) {
-            return res.status(400).json({ success: false, message: "Invalid Entries!" });
+            return res.status(BAD_REQUEST).json({ success: false, message: "Invalid Entries!" });
         }
 
         const categoryData = await categoryModel.findOne({ name: category });
         if (!categoryData) {
-            return res.status(400).json({ success: false, message: "Invalid category selected!" });
+            return res.status(BAD_REQUEST).json({ success: false, message: "Invalid category selected!" });
         }
 
         const categoryOffer = categoryData?.offer || null;
@@ -254,16 +243,16 @@ export const updateProductService = async (req, res) => {
         );
 
         if (!updatedProduct) {
-            return res.status(404).json({ success: false, message: "Product not found!" });
+            return res.status(NOT_FOUND).json({ success: false, message: "Product not found!" });
         }
 
-        res.status(200).json({
+        res.status(SUCCESS).json({
             success: true,
             message: "Product updated successfully",
             product: updatedProduct,
         });
 
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(SERVER_ERROR).json({ success: false, message: error.message });
     }
 };

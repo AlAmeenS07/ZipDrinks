@@ -5,6 +5,8 @@ import { useSelector } from "react-redux";
 const AdminProtectedRoute = ({ children }) => {
   const { adminData, loading } = useSelector(state => state.admin);
 
+  console.log(adminData)
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">

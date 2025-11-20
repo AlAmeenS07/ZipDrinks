@@ -3,15 +3,15 @@ import { useForm } from 'react-hook-form';
 
 export default function CouponForm({ couponSubmit, coupon }) {
 
-    const { register, handleSubmit, formState: { errors }, reset , watch } = useForm({
+    const { register, handleSubmit, formState: { errors }, reset, watch } = useForm({
         defaultValues: {
             couponCode: coupon?.couponCode || "",
             discount: coupon?.discount || "",
             description: coupon?.description || "",
-            expiryDate : coupon?.expiryDate ? new Date(coupon?.expiryDate).toISOString().split("T")[0] : "",
+            expiryDate: coupon?.expiryDate ? new Date(coupon?.expiryDate).toISOString().split("T")[0] : "",
             limit: coupon?.limit || "",
             minPurchase: coupon?.minPurchase || "",
-            maxRedeem: coupon?.maxRedeem || ""
+            maxRedeem: coupon?.maxRedeem || 0
         }
     })
 
@@ -21,10 +21,10 @@ export default function CouponForm({ couponSubmit, coupon }) {
                 couponCode: coupon?.couponCode || "",
                 discount: coupon?.discount || "",
                 description: coupon?.description || "",
-                expiryDate : coupon?.expiryDate ? new Date(coupon?.expiryDate).toISOString().split("T")[0] : "",
+                expiryDate: coupon?.expiryDate ? new Date(coupon?.expiryDate).toISOString().split("T")[0] : "",
                 limit: coupon?.limit || "",
                 minPurchase: coupon?.minPurchase || "",
-                maxRedeem: coupon?.maxRedeem || ""
+                maxRedeem: coupon?.maxRedeem || 0
             })
         }
     }, [coupon, reset])
@@ -45,7 +45,15 @@ export default function CouponForm({ couponSubmit, coupon }) {
                             <input
                                 type="text"
                                 name="couponCode"
-                                {...register("couponCode", { required: { value: true, message: "Code is required !" }, validate: (val) => val.trim() === val || "Enter valid code !" })}
+                                {...register("couponCode", {
+                                    required: { value: true, message: "Code is required !" },
+                                    pattern: {
+                                        value: /^(?=.*[A-Za-z]).+$/,
+                                        message: "Coupon Code must include at least one alphabet !"
+                                    },
+                                    maxLength: { value: 20, message: "Coupon code must be lessthan 20 letters !" },
+                                    validate: (val) => val.trim() === val || "Enter valid code !"
+                                })}
                                 className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                             {errors.couponCode && <p className='text-center mt-2 text-red-500'>{errors.couponCode.message}</p>}
@@ -89,7 +97,12 @@ export default function CouponForm({ couponSubmit, coupon }) {
                                 {...register("description", {
                                     required: { value: true, message: "Description is required !" },
                                     validate: (val) => val.trim() === val || "Enter valid description !",
-                                    minLength: { value: 10, message: "Description aleast 10 letters !" }
+                                    minLength: { value: 10, message: "Description aleast 10 letters !" },
+                                    maxLength: { value: 50, message: "Description must be lessthan 50 letters !" },
+                                    pattern: {
+                                        value: /^(?=.*[A-Za-z]).+$/,
+                                        message: "Description must include at least one alphabet !"
+                                    },
                                 })}
                                 className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
@@ -125,7 +138,11 @@ export default function CouponForm({ couponSubmit, coupon }) {
                             <input
                                 type="number"
                                 name="limit"
-                                {...register("limit", { required: { value: true, message: "limit is required !" }, min: { value: 0, message: "Minimum limit will be 0" } })}
+                                {...register("limit", {
+                                    required: { value: true, message: "limit is required !" },
+                                    min: { value: 1, message: "Minimum limit will be 1" },
+                                    max: { value: 1000, message: "Maximum limit is upto 1000" }
+                                })}
                                 className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                             {errors.limit && <p className='text-center mt-2 text-red-500'>{errors.limit.message}</p>}
@@ -143,9 +160,9 @@ export default function CouponForm({ couponSubmit, coupon }) {
                                 name="minimumPurchase"
                                 {...register("minPurchase", {
                                     required: { value: true, message: "minimum purchase is required !" },
-                                    min: { value: 0, message: "minimum value must be 0" },
-                                    validate : (val)=> {
-                                        if(watch("discount").includes("%")){
+                                    min: { value: 1, message: "minimum value must be 1" },
+                                    validate: (val) => {
+                                        if (watch("discount").includes("%")) {
                                             return true
                                         }
                                         return Number(val) > parseInt(watch("discount")) || "Minimum purchase must be greater than discount !";
@@ -170,7 +187,10 @@ export default function CouponForm({ couponSubmit, coupon }) {
                             <input
                                 type="number"
                                 name="maxRedeemablePrice"
-                                {...register("maxRedeem", { required: { value: true, message: "MaxRedeem is required !" }, min: { value: 0, message: "Minimum value must be 0" } })}
+                                {...register("maxRedeem", {
+                                    required: { value: true, message: "MaxRedeem is required !" },
+                                    min: { value: 0, message: "Minimum value must be 0" }
+                                })}
                                 className="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                             {errors.maxRedeem && <p className='text-center mt-2 text-red-500'>{errors.maxRedeem.message}</p>}

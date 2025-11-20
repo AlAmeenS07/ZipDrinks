@@ -44,6 +44,7 @@ const userSlice = createSlice({
             state.isLoggedIn = false;
             state.error = null;
             state.isVerified = false;
+            state.accessToken = null;
         }
     }
 

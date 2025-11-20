@@ -18,7 +18,7 @@ const AdminCustomers = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
 
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
 
   useEffect(() => {
     setSearchParams({
@@ -146,17 +146,20 @@ const AdminCustomers = () => {
                 <table className="w-full">
                   <thead className="bg-green-600 text-white">
                     <tr>
+                      <th className="px-6 py-4 text-center text-sm font-semibold">#</th>
                       <th className="px-6 py-4 text-left text-sm font-semibold">Customer Name</th>
                       <th className="px-6 py-4 text-left text-sm font-semibold">Date</th>
                       <th className="px-6 py-4 text-left text-sm font-semibold">Phone</th>
                       <th className="px-6 py-4 text-left text-sm font-semibold">Status</th>
                       <th className="px-6 py-4 text-center text-sm font-semibold">Block/Unblock</th>
-                      <th className="px-6 py-4 text-center text-sm font-semibold">View</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {customers.map((customer) => (
+                    {customers.map((customer , index) => (
                       <tr key={customer._id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4 text-sm text-gray-600">
+                          {index+1}
+                        </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div>
@@ -191,11 +194,11 @@ const AdminCustomers = () => {
                             />
                           </button>
                         </td>
-                        <td className="px-6 py-4 text-center">
+                        {/* <td className="px-6 py-4 text-center">
                           <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                             <Eye size={18} />
                           </button>
-                        </td>
+                        </td> */}
                       </tr>
                     ))}
                   </tbody>

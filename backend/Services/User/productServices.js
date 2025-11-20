@@ -1,4 +1,5 @@
 import productModel from "../../models/productModel.js";
+import { NOT_FOUND, SERVER_ERROR, SUCCESS } from "../../utils/constants.js";
 
 export const getAllProductsService = async (req, res) => {
   try {
@@ -51,11 +52,11 @@ export const getAllProductsService = async (req, res) => {
 
     const totalItems = await productModel.countDocuments(query);
 
-    res.status(200).json({ success: true, message: "Products fetched successfully", products, totalItems,
+    res.status(SUCCESS).json({ success: true, message: "Products fetched successfully", products, totalItems,
         totalPages: limit ? Math.ceil(totalItems / limit) : 1, currentPage: page });
 
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(SERVER_ERROR).json({ success: false, message: error.message });
   }
 };
 
@@ -68,12 +69,12 @@ export const getSingleProductService = async(req , res)=>{
         const product = await productModel.findById(productId);
 
         if(!product){
-            return res.status(404).json({success : false , message : "Something went wrong !"})
+            return res.status(NOT_FOUND).json({success : false , message : "Something went wrong !"})
         }
 
-        res.status(200).json({success : true , message : "product fetched successfully" , product})
+        res.status(SUCCESS).json({success : true , message : "product fetched successfully" , product})
         
      } catch (error) {
-        res.status(500).json({success : false , message : error.message})
+        res.status(SERVER_ERROR).json({success : false , message : error.message})
      }
 }

@@ -1,10 +1,31 @@
 import React from 'react'
 import { Printer, User, Mail, Phone, MapPin, Package } from 'lucide-react';
+import { toast } from 'react-toastify';
+import axiosInstance from '../../Helper/AxiosInstance';
 
 
 const OrderDetailsInfo = ({ order }) => {
 
-  const backendUrl = import.meta.env.VITE_BACKEND_URL; 
+  // const backendUrl = import.meta.env.VITE_BACKEND_URL; 
+
+      const downloadInvoice = async (orderId) => {
+          try {
+              const response = await axiosInstance.get(`/api/order/invoice/${orderId}`, {
+                  responseType: "blob",
+              });
+              const blob = new Blob([response.data], { type: "application/pdf" });
+              const url = window.URL.createObjectURL(blob);
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = `Invoice_${orderId}.pdf`;
+              link.click();
+              link.remove();
+              window.URL.revokeObjectURL(url);
+          } catch (error) {
+              toast.error("Failed to download invoice", error.message);
+          }
+      };
+  
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
@@ -19,7 +40,7 @@ const OrderDetailsInfo = ({ order }) => {
           </div>
         </div>
         <button className="flex items-center gap-2 px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition-colors"
-          onClick={() => window.open(`${backendUrl}/api/order/invoice/${order._id}`, "_blank")}>
+          onClick={() => downloadInvoice(order._id)}>
           <Printer className="w-4 h-4" />
           Invoice
         </button>

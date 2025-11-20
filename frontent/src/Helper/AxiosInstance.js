@@ -1,6 +1,7 @@
 import axios from 'axios';
 import store from '../Store/Store';
-import { loginSuccess, logout } from '../Store/user/UserSlice';
+import { loadingEnd, loginSuccess, logout } from '../Store/user/UserSlice';
+import { adminLoginSuccess } from '../Store/Admin/AdminSlice';
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
@@ -12,9 +13,20 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const accessToken = store.getState().user.accessToken
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`
+    const userToken = store.getState().user.accessToken;
+    const adminToken = store.getState().admin.accessToken;
+
+    const url = config.url.replace(import.meta.env.VITE_BACKEND_URL, "");
+
+    if (url.startsWith("/api/admin")) {
+      if (adminToken) {
+        config.headers.Authorization = `Bearer ${adminToken}`;
+      }
+    }
+    else {
+      if (userToken) {
+        config.headers.Authorization = `Bearer ${userToken}`;
+      }
     }
     return config
   },
@@ -24,6 +36,7 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
+    console.log(error)
     const originalRequest = error.config
 
     if (error.response?.status == 401 && !originalRequest._retry) {
@@ -31,10 +44,17 @@ axiosInstance.interceptors.response.use(
 
       try {
 
-        const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/auth/refresh-token`,{ withCredentials: true });
+        const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/auth/refresh-token`, { withCredentials: true });
+
+        console.log("axos1", data)
 
         if (data.success) {
-          store.dispatch(loginSuccess({ accessToken: data.accessToken , userData : data.userData }))
+          console.log("axios2", data)
+          if (data.userData.isAdmin) {
+            store.dispatch(adminLoginSuccess({ accessToken: data.accessToken, adminData: data.userData }))
+          } else {
+            store.dispatch(loginSuccess({ accessToken: data.accessToken, userData: data.userData }))
+          }
         }
 
         originalRequest.headers.Authorization = `Bearer ${data.accessToken}`
@@ -43,9 +63,12 @@ axiosInstance.interceptors.response.use(
       } catch (error) {
         console.log(error?.response?.data?.message)
         store.dispatch(logout())
-        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/logout` , {} , {withCredentials : true});
+        await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/logout`, {}, { withCredentials: true });
         return Promise.reject(error)
 
+      }
+      finally{
+        store.dispatch(loadingEnd())
       }
     }
     return Promise.reject(error);

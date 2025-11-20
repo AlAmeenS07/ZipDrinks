@@ -49,14 +49,14 @@ const BannerForm = ({ bannerSubmit, banner }) => {
         setImage("")
     }
 
-      const submitBanner = (data) => {
-        if(!image){
+    const submitBanner = (data) => {
+        if (!image) {
             toast.error("Image is required !")
         }
         data.image = image
         bannerSubmit(data)
         reset()
-      };
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 p-4 md:p-6 lg:p-8">
@@ -129,7 +129,12 @@ const BannerForm = ({ bannerSubmit, banner }) => {
                                 type="text"
                                 {...register("title", {
                                     required: { value: true, message: "Title is required !" },
-                                    validate: (val) => val.trim() != "" || "Enter valid title !"
+                                    validate: (val) => val.trim() != "" || "Enter valid title !",
+                                    maxLength: { value: 25, message: "Title must be lessthan 25" },
+                                    pattern: {
+                                        value: /^(?=.*[A-Za-z]).+$/,
+                                        message: "Title must include at least one alphabet !"
+                                    },
                                 })}
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                 placeholder="Enter banner title"
@@ -148,7 +153,12 @@ const BannerForm = ({ bannerSubmit, banner }) => {
                                 {...register("description", {
                                     required: { value: true, message: "Description is required !" },
                                     minLength: { value: 10, message: "Description must be atleast 10 letters !" },
-                                    validate: (val) => val.trim() != "" || "Enter valid description !"
+                                    validate: (val) => val.trim() != "" || "Enter valid description !",
+                                    maxLength: { value: 75, message: "Description must be lessthan 75" },
+                                    pattern: {
+                                        value: /^(?=.*[A-Za-z]).+$/,
+                                        message: "Description must include at least one alphabet !"
+                                    },
                                 })}
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                                 placeholder="Enter banner description"
@@ -163,7 +173,7 @@ const BannerForm = ({ bannerSubmit, banner }) => {
                             type='submit'
                             className="px-12 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors w-full md:w-auto"
                         >
-                            {banner? "Update" : "Add"}
+                            {banner ? "Update" : "Add"}
                         </button>
                     </div>
                 </div>

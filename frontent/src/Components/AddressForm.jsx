@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 
-const AddressForm = ({ addressSubmit, address , checkout }) => {
+const AddressForm = ({ addressSubmit, address, checkout }) => {
 
     const { register, formState: { errors }, handleSubmit, reset } = useForm({
         defaultValues: {
@@ -31,7 +31,7 @@ const AddressForm = ({ addressSubmit, address , checkout }) => {
             })
         }
 
-    }, [address , reset])
+    }, [address, reset])
 
     const loading = useSelector(state => state.user.loading)
 
@@ -53,7 +53,12 @@ const AddressForm = ({ addressSubmit, address , checkout }) => {
                             placeholder="eg : john Doe"
                             {...register("fullname", {
                                 required: { value: true, message: "Full name is required !" },
-                                validate: (val) => val.trim() === val || "Enter valid name !"
+                                validate: (val) => val.trim() === val || "Enter valid name !",
+                                maxLength: { value: 20, message: "Name must be lessthan 20" },
+                                pattern: {
+                                    value: /^(?=.*[A-Za-z]).+$/,
+                                    message: "Fullname must include at least one alphabet !"
+                                },
                             })}
                             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-md 
               focus:outline-none focus:ring-2 focus:ring-gray-300 focus:bg-white transition"
@@ -88,7 +93,13 @@ const AddressForm = ({ addressSubmit, address , checkout }) => {
                             rows="3"
                             {...register("address", {
                                 required: { value: true, message: "Address is required !" },
-                                minLength: { value: 5, message: "Address must be 5 letters !" }, validate: (val) => val === val.trim() || "Enter valid address !"
+                                minLength: { value: 5, message: "Address must be 5 letters !" },
+                                validate: (val) => val === val.trim() || "Enter valid address !",
+                                maxLength: { value: 50, message: "Address must be lessthan 50 letters !" },
+                                pattern: {
+                                    value: /^(?=.*[A-Za-z]).+$/,
+                                    message: "Address must include at least one alphabet !"
+                                },
                             })}
                             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-md 
               focus:outline-none focus:ring-2 focus:ring-gray-300 focus:bg-white transition"
@@ -104,7 +115,12 @@ const AddressForm = ({ addressSubmit, address , checkout }) => {
                                 placeholder="eg : Ernakulam"
                                 {...register("district", {
                                     required: { value: true, message: "District is required !" },
-                                    validate: (val) => val === val.trim() || "Enter valid District !"
+                                    validate: (val) => val === val.trim() || "Enter valid District !",
+                                    maxLength: { value: 20, message: "District must be lessthan 20 !" },
+                                    pattern: {
+                                        value: /^(?=.*[A-Za-z]).+$/,
+                                        message: "District must include at least one alphabet !"
+                                    },
                                 })}
                                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-md 
                 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:bg-white transition"
@@ -118,7 +134,12 @@ const AddressForm = ({ addressSubmit, address , checkout }) => {
                                 placeholder="eg : Kerala"
                                 {...register("state", {
                                     required: { value: true, message: "State is required !" },
-                                    validate: (val) => val === val.trim() || "Enter valid State !"
+                                    validate: (val) => val === val.trim() || "Enter valid State !",
+                                    maxLength: { value: 20, message: "State must be lessthan 20 letters !" },
+                                    pattern: {
+                                        value: /^(?=.*[A-Za-z]).+$/,
+                                        message: "State must include at least one alphabet !"
+                                    },
                                 })}
                                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-md 
                 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:bg-white transition"
@@ -132,7 +153,12 @@ const AddressForm = ({ addressSubmit, address , checkout }) => {
                                 placeholder="eg : Hospital"
                                 {...register("landmark", {
                                     required: { value: true, message: "City is required !" },
-                                    validate: (val) => val === val.trim() || "Enter valid landmark !"
+                                    validate: (val) => val === val.trim() || "Enter valid landmark !",
+                                    maxLength: { value: 20, message: "Landmark must be lessthan 20 letters !" },
+                                    pattern: {
+                                        value: /^(?=.*[A-Za-z]).+$/,
+                                        message: "Landmark must include at least one alphabet !"
+                                    },
                                 })}
                                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-md 
                 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:bg-white transition"
@@ -146,7 +172,8 @@ const AddressForm = ({ addressSubmit, address , checkout }) => {
                                 placeholder="eg : 681244"
                                 {...register("pincode", {
                                     required: { value: true, message: "Pincode is required !" },
-                                    minLength: { value: 6, message: "Enter valid pincode !" }
+                                    minLength: { value: 6, message: "Pincode must be 6 digits  !" },
+                                    maxLength: { value: 6, message: "Pincode must be 6 digits !" }
                                 })}
                                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-md 
                 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:bg-white transition"
@@ -157,12 +184,12 @@ const AddressForm = ({ addressSubmit, address , checkout }) => {
 
                     <div className="flex justify-end gap-4 pt-6">
                         {checkout ? "" : (
-                        <Link to={"/profile/address"}
-                            type="button"
-                            className="px-6 py-3 bg-gray-600 text-white font-medium rounded-md hover:bg-gray-700 transition"
-                        >
-                            Cancel
-                        </Link>
+                            <Link to={"/profile/address"}
+                                type="button"
+                                className="px-6 py-3 bg-gray-600 text-white font-medium rounded-md hover:bg-gray-700 transition"
+                            >
+                                Cancel
+                            </Link>
                         )}
                         <button
                             type="submit"

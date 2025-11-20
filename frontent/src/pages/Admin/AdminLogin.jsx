@@ -6,13 +6,12 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axiosInstance from '../../Helper/AxiosInstance.js';
 import { Loader } from 'react-feather';
-import { fetchAdminData, loadStart , loadEnd } from '../../Store/Admin/AdminSlice.js';
+import { loadStart , loadEnd, adminLoginSuccess } from '../../Store/Admin/AdminSlice.js';
 
 const AdminLogin = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const loading = useSelector(state => state.admin.loading)
-  const backendurl = import.meta.env.VITE_BACKEND_URL;
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
@@ -22,10 +21,11 @@ const AdminLogin = () => {
     dispatch(loadStart())
     try {
 
-      let res = await axiosInstance.post(backendurl + '/api/admin/login', { email: data.email, password: data.password })
+      let res = await axiosInstance.post('/api/admin/login', { email: data.email, password: data.password })
 
       if (res.data.success) {
-        await dispatch(fetchAdminData())
+        console.log(res.data)
+        dispatch(adminLoginSuccess({accessToken : res.data.accessToken , adminData : res.data.adminData}))
         toast.success("Welcome Admin")
         navigate('/admin/dashboard', { replace: true })
       } else {

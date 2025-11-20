@@ -73,7 +73,7 @@ const ChangePassword = () => {
                             placeholder="Enter New Password"
                             {...register("password", {
                                 required: { value: true, message: "password is required !" },
-                                pattern: { value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/, message: 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character' }
+                                pattern: { value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[^\s]{8,}$/, message: 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character' },
                             })}
                             className="border rounded-md w-full py-2 px-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
                         />

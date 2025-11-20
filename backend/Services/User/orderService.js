@@ -1,5 +1,5 @@
 import razorpay from "../../confiq/razorpay.js";
-import logger from "../../logger.js";
+import logger from "../../utils/logger.js";
 import cartModel from "../../models/cartModel.js"
 import orderModel from "../../models/orderModel.js"
 import productModel from "../../models/productModel.js"
@@ -8,6 +8,7 @@ import crypto from "crypto"
 import walletModel from "../../models/wallet.js";
 import { transactionIdCreator } from "./authServices.js";
 import couponModel from "../../models/coupon.js";
+import { BAD_REQUEST, MAX_COD_AMOUNT, NOT_FOUND, SERVER_ERROR, SEVEN_DIGIT_MIN_VALUE, SEVEN_DIGIT_RANGE_VALUE, SUCCESS, TAX_PERCENT, UNAUTHORIZED } from "../../utils/constants.js";
 
 
 const orderTransactionIdCreator = async () => {
@@ -15,7 +16,7 @@ const orderTransactionIdCreator = async () => {
     let exist = true;
 
     while (exist) {
-        const num = String(Math.floor(1000000 + Math.random() * 9000000));
+        const num = String(Math.floor(SEVEN_DIGIT_MIN_VALUE + Math.random() * SEVEN_DIGIT_RANGE_VALUE));
         transactionId = `#${num}`;
 
         const transactionIdExist = await orderModel.findOne({ "transactions.transactionId": transactionId });
@@ -33,28 +34,32 @@ export const placeOrderService = async (req, res) => {
     const { address, products, subTotal, taxAmount, totalAmount, paymentMethod, userId, couponId, couponAmount } = req.body
 
     if (!userId) {
-        return res.status(401).json({ success: false, message: "Not Authorized !" })
+        return res.status(UNAUTHORIZED).json({ success: false, message: "Not Authorized !" })
     }
 
     try {
 
         if (Object.keys(address).length == 0 || products.length == 0 || !subTotal || !taxAmount || !totalAmount || !paymentMethod) {
-            return res.status(400).json({ success: false, message: "Something wrong ! Missing fields !" })
+            return res.status(BAD_REQUEST).json({ success: false, message: "Something wrong ! Missing fields !" })
+        }
+
+        if(totalAmount > MAX_COD_AMOUNT && paymentMethod == "COD"){
+            return res.status(BAD_REQUEST).json({success : false , message : "COD is not available for orders above 1000 !"})
         }
 
         for (let product of products) {
             let isProduct = await productModel.findOne({ _id: product.productId, isListed: true })
             if (!isProduct) {
-                return res.status(404).json({ success: false, message: `${product.name} is not found !` })
+                return res.status(NOT_FOUND).json({ success: false, message: `${product.name} is not found !` })
             }
 
             let productVariant = isProduct.variants.find(prd => prd.sku == product.sku)
             if (!productVariant) {
-                return res.status(404).json({ success: false, message: `${product.sku} size is not found !` })
+                return res.status(NOT_FOUND).json({ success: false, message: `${product.sku} size is not found !` })
             }
 
             if (productVariant.quantity < product.quantity) {
-                return res.status(409).json({ success: false, message: `${product.name} is just sold out !` })
+                return res.status(NOT_FOUND).json({ success: false, message: `${product.name} is just sold out !` })
             }
         }
 
@@ -69,7 +74,7 @@ export const placeOrderService = async (req, res) => {
                 receipt: orderId
             })
 
-            return res.status(200).json({
+            return res.status(SUCCESS).json({
                 success: true,
                 message: "Razorpay order created successfully",
                 razorpayOrder,
@@ -96,7 +101,7 @@ export const placeOrderService = async (req, res) => {
             }
 
             if (wallet.balance < totalAmount) {
-                return res.status(400).json({ success: false, message: "Insufficient amount in wallet !" })
+                return res.status(BAD_REQUEST).json({ success: false, message: "Insufficient amount in wallet !" })
             }
 
             let transactionId = await transactionIdCreator()
@@ -136,10 +141,10 @@ export const placeOrderService = async (req, res) => {
 
         await order.save();
 
-        res.status(200).json({ success: true, message: "Order successfull", order })
+        res.status(SUCCESS).json({ success: true, message: "Order successfull", order })
 
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message })
+        res.status(SERVER_ERROR).json({ success: false, message: error.message })
     }
 }
 
@@ -162,7 +167,7 @@ export const getUserOrderService = async (req, res) => {
         }
 
         if (!userId) {
-            return res.status(401).json({ success: false, message: "Not authorized !" })
+            return res.status(UNAUTHORIZED).json({ success: false, message: "Not authorized !" })
         }
 
         const totalOrders = await orderModel.countDocuments(query);
@@ -170,16 +175,16 @@ export const getUserOrderService = async (req, res) => {
         let orders = await orderModel.find(query).sort({ createdAt: -1 }).skip(skipItems).limit(limitPerPage)
 
         if (!orders) {
-            return res.status(404).json({ success: false, message: "Orders not found !" })
+            return res.status(NOT_FOUND).json({ success: false, message: "Orders not found !" })
         }
 
-        res.status(200).json({
+        res.status(SUCCESS).json({
             success: true, message: "Orders fetched successfully", orders, totalOrders,
             currentPage: pageNum, totalPages: Math.ceil(totalOrders / limitPerPage)
         })
 
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message })
+        res.status(SERVER_ERROR).json({ success: false, message: error.message })
     }
 }
 
@@ -191,23 +196,23 @@ export const getSingleOrderService = async (req, res) => {
     try {
 
         if (!userId) {
-            return res.status(401).json({ success: false, message: "Not authorized !" })
+            return res.status(UNAUTHORIZED).json({ success: false, message: "Not authorized !" })
         }
 
         if (!orderId) {
-            return res.status(400).json({ success: false, message: "Something went wrong !" })
+            return res.status(BAD_REQUEST).json({ success: false, message: "Something went wrong !" })
         }
 
         let orderDetail = await orderModel.findById(orderId)
 
         if (!orderDetail) {
-            return res.status(404).json({ success: false, message: "Order not found !" })
+            return res.status(NOT_FOUND).json({ success: false, message: "Order not found !" })
         }
 
-        res.status(200).json({ success: true, message: "Order fetched Successfully !", orderDetail })
+        res.status(SUCCESS).json({ success: true, message: "Order fetched Successfully !", orderDetail })
 
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message })
+        res.status(SERVER_ERROR).json({ success: false, message: error.message })
     }
 }
 
@@ -219,16 +224,16 @@ export const cancelOrderService = async (req, res) => {
 
     try {
         if (!userId) {
-            return res.status(401).json({ success: false, message: "Not authorized!" });
+            return res.status(UNAUTHORIZED).json({ success: false, message: "Not authorized!" });
         }
 
         const order = await orderModel.findById(orderId);
         if (!order) {
-            return res.status(404).json({ success: false, message: "Order not found!" });
+            return res.status(NOT_FOUND).json({ success: false, message: "Order not found!" });
         }
 
         if (order.orderStatus !== "pending" && order.orderStatus !== "processing") {
-            return res.status(409).json({ success: false, message: "This order cannot be cancelled now!" });
+            return res.status(BAD_REQUEST).json({ success: false, message: "This order cannot be cancelled now!" });
         }
 
         for (const item of order.items) {
@@ -281,14 +286,14 @@ export const cancelOrderService = async (req, res) => {
 
         await order.save();
 
-        res.status(200).json({
+        res.status(SUCCESS).json({
             success: true,
             message: "Order cancelled successfully!",
             order,
         });
 
     } catch (error) {
-        res.status(500).json({
+        res.status(SERVER_ERROR).json({
             success: false,
             message: error.message,
         });
@@ -302,22 +307,22 @@ export const cancelOrderitemService = async (req, res) => {
 
     try {
         if (!userId) {
-            return res.status(401).json({ success: false, message: "Not authorized!" });
+            return res.status(UNAUTHORIZED).json({ success: false, message: "Not authorized!" });
         }
 
         const order = await orderModel.findById(orderId);
         if (!order) {
-            return res.status(404).json({ success: false, message: "Order not found!" });
+            return res.status(NOT_FOUND).json({ success: false, message: "Order not found!" });
         }
 
         const item = order.items.find((item) => item.sku === sku);
         if (!item) {
-            return res.status(404).json({ success: false, message: "Order item not found!" });
+            return res.status(NOT_FOUND).json({ success: false, message: "Order item not found!" });
         }
 
         const product = await productModel.findById(item.productId);
         if (!product) {
-            return res.status(404).json({ success: false, message: "Product not found!" });
+            return res.status(NOT_FOUND).json({ success: false, message: "Product not found!" });
         }
 
         const variant = product.variants.find((v) => v.sku === sku);
@@ -335,13 +340,13 @@ export const cancelOrderitemService = async (req, res) => {
         if (allCancelled) {
             order.orderStatus = "cancelled";
             order.subTotal = order.items.reduce((sum, item) => sum + item.quantity * item.salePrice, 0)
-            order.taxAmount = Math.floor((order.subTotal) * 0.18)
+            order.taxAmount = Math.floor((order.subTotal) * TAX_PERCENT)
             order.totalAmount = order.subTotal + order.taxAmount + order.deliveryFee
         }
         else {
             let activeItems = order.items.filter((item) => item.status !== "cancelled")
             order.subTotal = activeItems.reduce((sum, item) => sum + item.quantity * item.salePrice, 0)
-            order.taxAmount = Math.floor((order.subTotal) * 0.18)
+            order.taxAmount = Math.floor((order.subTotal) * TAX_PERCENT)
             order.totalAmount = order.subTotal + order.taxAmount + order.deliveryFee
         }
 
@@ -352,7 +357,7 @@ export const cancelOrderitemService = async (req, res) => {
                 refundAmount = orderFullAmount
             }
             else {
-                refundAmount = item.subTotal + (item.subTotal * 0.18)
+                refundAmount = item.subTotal + (item.subTotal * TAX_PERCENT)
 
                 if (order.couponId && order.couponAmount > 0) {
                     const coupon = await couponModel.findById(order.couponId);
@@ -414,14 +419,14 @@ export const cancelOrderitemService = async (req, res) => {
 
         await order.save();
 
-        return res.status(200).json({
+        return res.status(SUCCESS).json({
             success: true,
             message: "Order item cancelled!",
             order,
         });
 
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(SERVER_ERROR).json({ success: false, message: error.message });
     }
 };
 
@@ -435,7 +440,7 @@ export const returnOrderService = async (req, res) => {
         let order = await orderModel.findById(orderId)
 
         if (!order) {
-            return res.status(404).json({ success: false, message: "Order not found !" })
+            return res.status(NOT_FOUND).json({ success: false, message: "Order not found !" })
         }
 
         order.orderStatus = status || "return-requested";
@@ -448,10 +453,10 @@ export const returnOrderService = async (req, res) => {
 
         await order.save()
 
-        res.status(200).json({ success: true, message: "Order return requsted", order })
+        res.status(SUCCESS).json({ success: true, message: "Order return requsted", order })
 
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message })
+        res.status(SERVER_ERROR).json({ success: false, message: error.message })
     }
 }
 
@@ -465,12 +470,12 @@ export const returnOrderItemService = async (req, res) => {
         let order = await orderModel.findById(orderId);
 
         if (!order) {
-            return res.status(404).json({ success: false, message: "Order not found !" })
+            return res.status(NOT_FOUND).json({ success: false, message: "Order not found !" })
         }
 
         const item = order.items.find((i) => i.sku === sku);
         if (!item) {
-            return res.status(404).json({ success: false, message: "Item not found in order!" });
+            return res.status(NOT_FOUND).json({ success: false, message: "Item not found in order!" });
         }
 
         item.status = status || "return-requested"
@@ -488,10 +493,10 @@ export const returnOrderItemService = async (req, res) => {
 
         await order.save()
 
-        res.status(200).json({ success: true, message: "Return requested successfully !", order })
+        res.status(SUCCESS).json({ success: true, message: "Return requested successfully !", order })
 
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message })
+        res.status(SERVER_ERROR).json({ success: false, message: error.message })
     }
 }
 
@@ -502,7 +507,7 @@ export const downloadOrderInvoiceService = async (req, res) => {
   try {
     const order = await orderModel.findById(orderId).populate("userId");
     if (!order) {
-      return res.status(404).json({ success: false, message: "Order not found!" });
+      return res.status(NOT_FOUND).json({ success: false, message: "Order not found!" });
     }
 
     // Split items by status
@@ -522,7 +527,7 @@ export const downloadOrderInvoiceService = async (req, res) => {
     const baseSubtotal = deliveredSubtotal - couponDiscount + deliveryFee;
 
     // Tax 18%
-    const taxAmount = Math.floor(Math.max(0, baseSubtotal) * 0.18);
+    const taxAmount = Math.floor(Math.max(0, baseSubtotal) * TAX_PERCENT);
 
     // Final payable total
     let totalPayable = Math.max(0, baseSubtotal + taxAmount);
@@ -594,7 +599,7 @@ export const downloadOrderInvoiceService = async (req, res) => {
     doc.end();
 
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(SERVER_ERROR).json({ success: false, message: error.message });
   }
 };
 
@@ -614,7 +619,7 @@ export const verifyPaymentService = async (req, res) => {
             .digest("hex");
 
         if (expectedSignature !== razorpay_signature) {
-            return res.status(400).json({
+            return res.status(BAD_REQUEST).json({
                 success: false,
                 message: "Invalid payment signature — Payment not verified!"
             });
@@ -656,13 +661,13 @@ export const verifyPaymentService = async (req, res) => {
 
         await order.save();
 
-        return res.status(200).json({
+        return res.status(SUCCESS).json({
             success: true,
             message: "Payment verified & order placed successfully!",
             order,
         });
 
     } catch (error) {
-        return res.status(500).json({ success: false, message: error.message });
+        return res.status(SERVER_ERROR).json({ success: false, message: error.message });
     }
 }

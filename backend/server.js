@@ -12,9 +12,11 @@ import categoryRouter from "./routes/categoryRoutes.js"
 import wishlistRouter from "./routes/wishlistRoutes.js"
 import cartRouter from "./routes/cartRoutes.js"
 import orderRouter from "./routes/orderRoutes.js"
-import logger from "./logger.js"
+import logger from "./utils/logger.js"
 import couponRouter from "./routes/couponRoutes.js"
 import walletRouter from "./routes/User/wallerRoutes.js"
+import bannerRouter from "./routes/User/bannerRoutes.js"
+import { requestResponseLogger } from "./middlewares/requestResponseLogger.js"
 
 const app = express()
 const port = process.env.PORT || 5000
@@ -28,7 +30,7 @@ app.use(cors({
 }))
 
 app.use(passport.initialize());
-app.use
+app.use(requestResponseLogger)
 
 connectDb()
 
@@ -47,6 +49,7 @@ app.use('/api/cart' , cartRouter)
 app.use('/api/order' , orderRouter)
 app.use('/api/coupons' , couponRouter)
 app.use('/api/wallet' , walletRouter)
+app.use('/api/banner' , bannerRouter)
 
 app.use((err, req, res, next) => {
   logger.error(err.stack);

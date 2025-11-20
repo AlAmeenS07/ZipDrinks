@@ -3,6 +3,7 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20"
 import 'dotenv/config'
 import userModel from "../models/userModel.js"
 import walletModel from "../models/wallet.js";
+import { SIX_DIGIT_MIN_VALUE, SIX_DIGIT_RANGE_VALUE } from "../utils/constants.js";
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
@@ -27,7 +28,7 @@ passport.use(new GoogleStrategy({
                     let exist = true
 
                     while (exist) {
-                        const num = Math.floor(100000 + Math.random() * 900000);
+                        const num = Math.floor(SIX_DIGIT_MIN_VALUE + Math.random() * SIX_DIGIT_RANGE_VALUE);
                         refCode = `REF${num}`;
 
                         let referralExist = await userModel.findOne({ referralCode: refCode })

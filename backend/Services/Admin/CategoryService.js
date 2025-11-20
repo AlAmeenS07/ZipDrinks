@@ -1,27 +1,28 @@
 import categoryModel from "../../models/categoryModel.js";
 import productModel from "../../models/productModel.js";
+import { BAD_REQUEST, CONFLICT, CREATED, NOT_FOUND, SERVER_ERROR, SUCCESS } from "../../utils/constants.js";
 
 export const categoryAddService = async (req, res) => {
   const { name, description, offer, maxRedeem, image } = req.body;
 
   try {
     if (!name.trim() || !description.trim() || !image.trim()) {
-      return res.status(400).json({ success: false, message: "Missing Details !" });
+      return res.status(BAD_REQUEST).json({ success: false, message: "Missing Details !" });
     }
 
     let existCategory = await categoryModel.findOne({ name: { $regex: name, $options: "i" } });
 
     if (existCategory) {
-      return res.status(409).json({ success: false, message: "Category already exist !" });
+      return res.status(CONFLICT).json({ success: false, message: "Category already exist !" });
     }
 
     let category = new categoryModel({ name, description, offer, maxRedeem, image });
     await category.save();
 
-    return res.status(201).json({ success: true, message: "Category added successfully" });
+    return res.status(CREATED).json({ success: true, message: "Category added successfully" });
 
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(SERVER_ERROR).json({ success: false, message: error.message });
   }
 };
 
@@ -49,10 +50,10 @@ export const getCategoriesService = async (req, res) => {
     }
 
     if (!categories) {
-      return res.status(404).json({ success: false, message: "Something went wrong !" });
+      return res.status(NOT_FOUND).json({ success: false, message: "Something went wrong !" });
     }
 
-    return res.status(200).json({
+    return res.status(SUCCESS).json({
       success: true,
       message: "Categories fetched Successfully",
       categories,
@@ -62,7 +63,7 @@ export const getCategoriesService = async (req, res) => {
     });
 
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(SERVER_ERROR).json({ success: false, message: error.message });
   }
 };
 
@@ -74,7 +75,7 @@ export const categoryListUnlistService = async (req, res) => {
     let category = await categoryModel.findById(categoryId);
 
     if (!category) {
-      return res.status(404).json({ success: false, message: "Category not found !" });
+      return res.status(NOT_FOUND).json({ success: false, message: "Category not found !" });
     }
 
     if (category.isListed) {
@@ -87,10 +88,10 @@ export const categoryListUnlistService = async (req, res) => {
 
     await category.save();
 
-    return res.status(200).json({ success: true, message: "Updated Successfully" });
+    return res.status(SUCCESS).json({ success: true, message: "Updated Successfully" });
 
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(SERVER_ERROR).json({ success: false, message: error.message });
   }
 };
 
@@ -102,13 +103,13 @@ export const singleCategoryService = async (req, res) => {
     const category = await categoryModel.findById(categoryId);
 
     if (!category) {
-      return res.status(404).json({ success: false, message: "Category not found !" });
+      return res.status(NOT_FOUND).json({ success: false, message: "Category not found !" });
     }
 
-    return res.status(200).json({ success: true, message: "Category fetched successfully", category });
+    return res.status(SUCCESS).json({ success: true, message: "Category fetched successfully", category });
 
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(SERVER_ERROR).json({ success: false, message: error.message });
   }
 };
 
@@ -118,7 +119,7 @@ export const updateCategoryService = async (req, res) => {
   const { categoryId } = req.params;
 
   if (!name.trim() || !description.trim() || !image) {
-    return res.status(400).json({ success: false, message: "Missing Details !" });
+    return res.status(BAD_REQUEST).json({ success: false, message: "Missing Details !" });
   }
 
   try {
@@ -129,7 +130,7 @@ export const updateCategoryService = async (req, res) => {
     );
 
     if (!category) {
-      return res.status(404).json({ success: false, message: "Category not found !" });
+      return res.status(NOT_FOUND).json({ success: false, message: "Category not found !" });
     }
 
     let products = await productModel.find({ category: category.name })
@@ -188,9 +189,9 @@ export const updateCategoryService = async (req, res) => {
 
     }
 
-    return res.status(200).json({ success: true, message: "Updated Successfully", category });
+    return res.status(SUCCESS).json({ success: true, message: "Updated Successfully", category });
 
   } catch (error) {
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(SERVER_ERROR).json({ success: false, message: error.message });
   }
 };

@@ -1,4 +1,5 @@
 import categoryModel from "../../models/categoryModel.js"
+import { NOT_FOUND, SERVER_ERROR, SUCCESS } from "../../utils/constants.js"
 
 
 export const getUserCategoriesService = async (req , res)=>{
@@ -7,12 +8,12 @@ export const getUserCategoriesService = async (req , res)=>{
         let categories = await categoryModel.find({ isListed : true})
 
         if(!categories){
-            return res.status(404).json({success : false , message : "Something went wrong !"})
+            return res.status(NOT_FOUND).json({success : false , message : "Something went wrong !"})
         }
 
-        res.status(200).json({success : true , message : "category fetched successfully" , categories})
+        res.status(SUCCESS).json({success : true , message : "category fetched successfully" , categories})
         
     } catch (error) {
-        res.status(500).json({success : false , message : error.message})
+        res.status(SERVER_ERROR).json({success : false , message : error.message})
     }
 }

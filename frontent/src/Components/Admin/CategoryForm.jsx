@@ -195,7 +195,15 @@ const CategoryForm = ({ categoryEditSubmit, category }) => {
                 </label>
                 <input
                     type="text"
-                    {...register("name", { required: { value: true, message: "Category name is required !" }, minLength: { value: 4, message: "Name must be 4 charecters !" } })}
+                    {...register("name", {
+                        required: { value: true, message: "Category name is required !" },
+                        minLength: { value: 4, message: "Name must be 4 charecters !" },
+                        maxLength: { value: 25, message: "Name must be lessthan 25 letters" },
+                        pattern: {
+                            value: /^(?=.*[A-Za-z]).+$/,
+                            message: "Name must include at least one alphabet !"
+                        }
+                    })}
                     placeholder="Type category name..."
                     className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                 />
@@ -208,7 +216,15 @@ const CategoryForm = ({ categoryEditSubmit, category }) => {
                     Description:
                 </label>
                 <textarea
-                    {...register("description", { required: { value: true, message: "Description is required !" }, minLength: { value: 10, message: "Must be 10 charecters" } })}
+                    {...register("description", {
+                        required: { value: true, message: "Description is required !" },
+                        minLength: { value: 10, message: "Must be 10 charecters" },
+                        maxLength: { value: 75, message: "Description must be lessthan 75 letters" },
+                        pattern: {
+                            value: /^(?=.*[A-Za-z]).+$/,
+                            message: "Description must include at least one alphabet"
+                        }
+                    })}
                     placeholder="Type category description..."
                     rows="5"
                     className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"

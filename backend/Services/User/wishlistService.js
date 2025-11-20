@@ -1,5 +1,6 @@
 import cartModel from "../../models/cartModel.js"
 import wishlistModel from "../../models/wishlistModel.js"
+import { BAD_REQUEST, CONFLICT, NOT_FOUND, SERVER_ERROR, SUCCESS } from "../../utils/constants.js"
 
 
 export const addToWishlistService = async(req , res)=>{
@@ -7,14 +8,14 @@ export const addToWishlistService = async(req , res)=>{
     try {
 
         if(!productId || !userId){
-            return res.status(400).json({success : false , message : "Something went wrong !"})
+            return res.status(BAD_REQUEST).json({success : false , message : "Something went wrong !"})
         }
 
         let cartItem = await cartModel.findOne({ userId, items: { $elemMatch: { productId } }});
 
 
         if(cartItem){
-            return res.json({success : false , message : "Product already in cart !"})
+            return res.status(BAD_REQUEST).json({success : false , message : "Product already in cart !"})
         }
 
         let addWishlist = await wishlistModel.findOne({ userId })
@@ -26,7 +27,7 @@ export const addToWishlistService = async(req , res)=>{
             const existProduct = await addWishlist.items.some((item)=> item.productId.toString() == productId)
 
             if(existProduct){
-                return res.json({success : false , message : "Product already exist in wishlist !"})
+                return res.status(CONFLICT).json({success : false , message : "Product already exist in wishlist !"})
             }
 
             addWishlist.items.push({productId})
@@ -34,10 +35,10 @@ export const addToWishlistService = async(req , res)=>{
 
         await addWishlist.save()
 
-        res.status(200).json({success : true , message : "Added to wishlist" , addWishlist})
+        res.status(SUCCESS).json({success : true , message : "Added to wishlist" , addWishlist})
         
     } catch (error) {
-        res.status(500).json({success : false , message : error.message})
+        res.status(SERVER_ERROR).json({success : false , message : error.message})
     }
 }
 
@@ -49,13 +50,13 @@ export const getWishlistsServices = async(req , res)=>{
         const wishlist = await wishlistModel.findOne({userId}).populate("items.productId")
 
         if(!wishlist){
-            return res.status(404).json({success : false , message : "Wishlist not found !"})
+            return res.status(NOT_FOUND).json({success : false , message : "Wishlist not found !"})
         }
 
-        res.status(200).json({success : true , message : "Wishlist fetched successfully" , wishlist})
+        res.status(SUCCESS).json({success : true , message : "Wishlist fetched successfully" , wishlist})
         
     } catch (error) {
-        return res.status(500).json({success : false , message : error.message})
+        return res.status(SERVER_ERROR).json({success : false , message : error.message})
     }
 }
 
@@ -66,23 +67,23 @@ export const removeWishlistService = async(req , res)=>{
     try {
         
         if(!userId || !productId){
-            return res.status(400).json({success : false , message : "Something went wrong !"})
+            return res.status(BAD_REQUEST).json({success : false , message : "Something went wrong !"})
         }
 
         let wishlist = await wishlistModel.findOne({userId})
 
         if(!wishlist){
-            return res.status(404).json({success : false , message : "Something went wrong !"})
+            return res.status(NOT_FOUND).json({success : false , message : "Something went wrong !"})
         }
 
         wishlist.items = wishlist.items.filter(item => item.productId.toString() !== productId)
 
         await wishlist.save()
 
-        res.status(200).json({success : true , message : "Removed from wallet"})
+        res.status(SUCCESS).json({success : true , message : "Removed from wallet"})
 
     } catch (error) {
-        return res.status(500).json({success : false , message : error.message})
+        return res.status(SERVER_ERROR).json({success : false , message : error.message})
     }
 }
 
@@ -95,12 +96,12 @@ export const removeAllWishListService = async(req , res)=>{
         const wishlist = await wishlistModel.updateOne({userId} , {$set : {items : []}})
 
         if(!wishlist){
-            return res.status(404).json({success : false , message : "Something went wrong !"})
+            return res.status(NOT_FOUND).json({success : false , message : "Something went wrong !"})
         }
 
-        res.status(200).json({success : true , message : "Updated Succssfully" , wishlist})
+        res.status(SUCCESS).json({success : true , message : "Updated Succssfully" , wishlist})
         
     } catch (error) {
-        res.status(500).json({success : false , message : error.message})
+        res.status(SERVER_ERROR).json({success : false , message : error.message})
     }
 }

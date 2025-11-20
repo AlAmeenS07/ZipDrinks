@@ -5,6 +5,7 @@ const initialState = {
     loading: false,
     isLoggedIn: false,
     adminData: JSON.parse(localStorage.getItem("adminData")) || null,
+    accessToken : null,
     error: null,
 }
 
@@ -32,6 +33,16 @@ const adminSlice = createSlice({
             state.loading = true;
         },
         loadEnd: (state) => {
+            state.loading = false;
+        },
+        adminLoginSuccess : (state , action)=>{
+            if(action.payload.accessToken){
+                state.accessToken = action.payload.accessToken
+            }
+            if(action.payload.adminData){
+                state.adminData = action.payload.adminData;
+            }
+            state.isLoggedIn = true;
             state.loading = false;
         },
         adminOut: (state) => {

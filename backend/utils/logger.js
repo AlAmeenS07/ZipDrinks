@@ -22,7 +22,7 @@ const logger = winston.createLogger({
   format: logFormat,
   transports: [
     // Console logs
-    new winston.transports.Console(),
+    // new winston.transports.Console(),
 
     // Log all info and higher levels
     new winston.transports.File({ filename: path.join(logDir, "combined.log") }),

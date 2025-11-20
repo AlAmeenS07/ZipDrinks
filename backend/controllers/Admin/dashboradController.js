@@ -1,4 +1,5 @@
 import { getAdminDashboardService } from "../../Services/Admin/dashboardService.js"
+import { NOT_FOUND, SERVER_ERROR, SUCCESS } from "../../utils/constants.js"
 
 
 export const getAdminDashboard = async (req, res) => {
@@ -8,12 +9,12 @@ export const getAdminDashboard = async (req, res) => {
         const dashboardData = await getAdminDashboardService(filter)
 
         if (!dashboardData) {
-            return res.status(404).json({ success: false, message: "Dashboard data not found !" })
+            return res.status(NOT_FOUND).json({ success: false, message: "Dashboard data not found !" })
         }
 
-        res.status(200).json({ success: true, message: "Dashboard data fetched successfully", dashboardData })
+        res.status(SUCCESS).json({ success: true, message: "Dashboard data fetched successfully", dashboardData })
 
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message })
+        res.status(SERVER_ERROR).json({ success: false, message: error.message })
     }
 }

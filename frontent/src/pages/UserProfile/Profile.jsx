@@ -1,16 +1,36 @@
 import React, { useEffect } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import UserProfileMain from '../../Components/UserProfileMain'
 import { Link } from 'react-router-dom'
 import { User } from 'lucide-react'
+import { toast } from 'react-toastify'
+import axiosInstance from '../../Helper/AxiosInstance'
+import { loginSuccess } from '../../Store/user/UserSlice'
 
 const Profile = () => {
+    const dispatch = useDispatch()
     const user = useSelector(state => state.user?.userData)
 
     console.log(user)
 
     useEffect(()=>{
-        
+        async function getUserData(){
+            try {
+
+                const { data } = await axiosInstance.get('/api/user/data')
+
+                if(data.success){
+                    dispatch(loginSuccess({userData : data.userData}))
+                }
+                else{
+                    toast.error(data.message)
+                }
+                
+            } catch (error) {
+                toast.error(error?.response?.data?.message)
+            }
+        }
+        getUserData()
     },[user])
 
     return (

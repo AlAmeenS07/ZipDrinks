@@ -24,7 +24,7 @@ const Signup = () => {
 
             dispatch(loginStart())
 
-            let res = await axiosInstance.post(backendurl + '/api/auth/register', {
+            let res = await axiosInstance.post('/api/auth/register', {
                 fullname: data.fullname, email: data.email,
                 phone: data.phone, password: data.password , referredBy : data.referredBy
             })
@@ -107,7 +107,7 @@ const Signup = () => {
                                         <input className="w-full px-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
                                             placeholder="••••••••" type="password" {...register("password", {
                                                 required: { value: true, message: "password is required !" },
-                                                pattern: { value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/, message: 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character' }
+                                                pattern: { value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_])[^\s]{8,}$/, message: 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character' }
                                             })} />
                                         {errors.password && <p className='text-red-500 text-sm mt-1'>{errors.password.message}</p>}
                                     </div>

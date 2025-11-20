@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { adminOut } from '../../Store/Admin/AdminSlice';
 import { toast } from 'react-toastify';
 import axiosInstance from '../../Helper/AxiosInstance';
+import Swal from 'sweetalert2';
 
 
 const AdminMain = ({ children }) => {
@@ -17,23 +18,36 @@ const AdminMain = ({ children }) => {
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
+
   async function handleLogout() {
-    try {
 
-      let { data } = await axiosInstance.post(backendUrl + '/api/admin/logout');
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'You won’t be able to revert this!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, logout!',
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
 
-      if (data.success) {
-        dispatch(adminOut())
-        navigate("/admin/login")
-        setUserDropdownOpen(!userDropdownOpen)
-      } else {
-        toast.error(data.message)
+          let { data } = await axiosInstance.post(backendUrl + '/api/admin/logout');
+
+          if (data.success) {
+            dispatch(adminOut())
+            navigate("/admin/login")
+            setUserDropdownOpen(!userDropdownOpen)
+          } else {
+            toast.error(data.message)
+          }
+        } catch (error) {
+          toast.error(error.message)
+        }
       }
-    } catch (error) {
-      toast.error(error.message)
-    }
+    });
   }
-
 
   const menuItems = [
     { icon: Home, label: 'Dashboard', path: '/admin/dashboard' },
@@ -83,13 +97,13 @@ const AdminMain = ({ children }) => {
 
             {userDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
-                <Link to="/admin/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                {/* <Link to="/admin/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                   Profile
                 </Link>
                 <Link to="/admin/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                   Settings
                 </Link>
-                <hr className="my-2 border-gray-200" />
+                <hr className="my-2 border-gray-200" /> */}
                 <button className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
                   onClick={handleLogout}>
                   Logout
@@ -106,7 +120,7 @@ const AdminMain = ({ children }) => {
             const Icon = item.icon;
             return (
               <Link key={item.label} to={item.path} className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive(item.path)
-                  ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50' }`}>
+                ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
                 <Icon size={20} />
                 <span>{item.label}</span>
               </Link>
@@ -124,7 +138,7 @@ const AdminMain = ({ children }) => {
                 return (
                   <Link key={item.label} to={item.path} onClick={() => setSidebarOpen(false)}
                     className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${isActive(item.path)
-                      ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50' }`}>
+                      ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'}`}>
                     <Icon size={20} />
                     <span>{item.label}</span>
                   </Link>
