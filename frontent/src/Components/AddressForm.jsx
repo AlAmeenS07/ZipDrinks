@@ -53,7 +53,7 @@ const AddressForm = ({ addressSubmit, address, checkout }) => {
                             placeholder="eg : john Doe"
                             {...register("fullname", {
                                 required: { value: true, message: "Full name is required !" },
-                                validate: (val) => val.trim() === val || "Enter valid name !",
+                                validate: (val) => val.trim() != "" || "Enter valid name !",
                                 maxLength: { value: 20, message: "Name must be lessthan 20" },
                                 pattern: {
                                     value: /^(?=.*[A-Za-z]).+$/,
@@ -77,7 +77,8 @@ const AddressForm = ({ addressSubmit, address, checkout }) => {
                                 placeholder="eg : 9847685514"
                                 {...register("phone", {
                                     required: { value: true, message: "Phone Number is required !" },
-                                    pattern: { value: /^[6-9]\d{9}$/, message: "Enter a valid number !" }, minLength: { value: 10, message: "Phone Number must be 10" }
+                                    pattern: { value: /^[6-9]\d{9}$/, message: "Enter a valid number !" }, 
+                                    minLength: { value: 10, message: "Phone Number must be 10" }
                                 })}
                                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-md 
                 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:bg-white transition"
@@ -94,7 +95,7 @@ const AddressForm = ({ addressSubmit, address, checkout }) => {
                             {...register("address", {
                                 required: { value: true, message: "Address is required !" },
                                 minLength: { value: 5, message: "Address must be 5 letters !" },
-                                validate: (val) => val === val.trim() || "Enter valid address !",
+                                validate: (val) => val.trim() !== "" || "Enter valid address !",
                                 maxLength: { value: 50, message: "Address must be lessthan 50 letters !" },
                                 pattern: {
                                     value: /^(?=.*[A-Za-z]).+$/,
@@ -115,7 +116,7 @@ const AddressForm = ({ addressSubmit, address, checkout }) => {
                                 placeholder="eg : Ernakulam"
                                 {...register("district", {
                                     required: { value: true, message: "District is required !" },
-                                    validate: (val) => val === val.trim() || "Enter valid District !",
+                                    validate: (val) => val.trim() !== "" || "Enter valid District !",
                                     maxLength: { value: 20, message: "District must be lessthan 20 !" },
                                     pattern: {
                                         value: /^(?=.*[A-Za-z]).+$/,
@@ -134,7 +135,7 @@ const AddressForm = ({ addressSubmit, address, checkout }) => {
                                 placeholder="eg : Kerala"
                                 {...register("state", {
                                     required: { value: true, message: "State is required !" },
-                                    validate: (val) => val === val.trim() || "Enter valid State !",
+                                    validate: (val) => val.trim() !== "" || "Enter valid State !",
                                     maxLength: { value: 20, message: "State must be lessthan 20 letters !" },
                                     pattern: {
                                         value: /^(?=.*[A-Za-z]).+$/,
@@ -153,7 +154,7 @@ const AddressForm = ({ addressSubmit, address, checkout }) => {
                                 placeholder="eg : Hospital"
                                 {...register("landmark", {
                                     required: { value: true, message: "City is required !" },
-                                    validate: (val) => val === val.trim() || "Enter valid landmark !",
+                                    validate: (val) => val.trim() !== "" || "Enter valid landmark !",
                                     maxLength: { value: 20, message: "Landmark must be lessthan 20 letters !" },
                                     pattern: {
                                         value: /^(?=.*[A-Za-z]).+$/,

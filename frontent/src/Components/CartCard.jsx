@@ -89,7 +89,7 @@ const CartCard = ({ cartItems }) => {
                                     <span className='text-sm sm:text-base text-gray-700'>
                                         Price ₹ {item?.productId?.variants?.find(variant => variant.sku == item.sku).salePrice}
                                     </span>
-                                    {item?.productId?.variants.find(variant => variant.sku == item.sku).price && (
+                                    {item?.productId?.variants.find(variant => variant.sku == item.sku).price > item?.productId?.variants.find(variant => variant.sku == item.sku).salePrice && (
                                         <span className='text-sm text-gray-400 line-through'>
                                             ₹ {item?.productId?.variants.find(variant => variant.sku == item.sku).price}
                                         </span>

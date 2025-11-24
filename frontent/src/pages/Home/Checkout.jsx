@@ -7,6 +7,7 @@ import AddressForm from '../../Components/AddressForm';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Loader, X } from 'lucide-react';
 import { fetchCart } from '../../Store/user/cartSlice';
+import Swal from 'sweetalert2';
 
 const Checkout = () => {
   const cart = useSelector(state => state.cart.cartData);
@@ -14,7 +15,7 @@ const Checkout = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
-  const [loading , setLoading] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [couponModal, setCouponModal] = useState(false)
   const [selectedCoupon, setSelectedCoupon] = useState(null)
 
@@ -217,14 +218,28 @@ const Checkout = () => {
         rzp.open();
 
         rzp.on("payment.failed", function (response) {
-          toast.error("Payment Failed: " + response.error.description);
+          Swal.fire({
+            icon: "error",
+            title: "Payment Failed",
+            html: `${response?.error?.description || "Payment verification failed!"}
+                  <br/><br/>
+                  <strong>Or choose another payment method</strong>`,
+            confirmButtonColor: "#000",
+          });
         });
       }
 
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      Swal.fire({
+        icon: "error",
+        title: "Payment Verification Failed",
+        html: `${error?.response?.data?.message || "Payment verification failed!"}
+                <br/><br/>
+                <strong>Or choose another payment method</strong>`,
+        confirmButtonColor: "#000",
+      });
     }
-    finally{
+    finally {
       setLoading(false)
     }
   }
