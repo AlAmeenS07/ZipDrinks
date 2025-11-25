@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axiosInstance from '../../../Helper/AxiosInstance';
 import Swal from 'sweetalert2';
-import Pagination from '../../../Components/pagination';
+import Pagination from '../../../Components/Pagination';
 
 const AdminBanner = () => {
 
