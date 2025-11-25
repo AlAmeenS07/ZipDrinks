@@ -4,7 +4,7 @@ import AdminMain from "../../../Components/Admin/AdminMain";
 import axiosInstance from '../../../Helper/AxiosInstance';
 import { toast } from 'react-toastify';
 import { Link, useSearchParams } from 'react-router-dom';
-import Pagination from '../../../Components/pagination';
+import Pagination from '../../../Components/Pagination';
 
 export default function AdminOrders() {
   const [query, setQuery] = useSearchParams();

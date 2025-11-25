@@ -5,7 +5,7 @@ import axiosInstance from '../../Helper/AxiosInstance';
 import { toast } from 'react-toastify';
 import { useSearchParams } from 'react-router-dom';
 import { Loader } from 'react-feather';
-import Pagination from '../../Components/pagination';
+import Pagination from '../../Components/Pagination';
 import Swal from "sweetalert2"
 
 const AdminCustomers = () => {

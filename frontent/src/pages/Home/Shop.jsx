@@ -8,7 +8,7 @@ import axiosInstance from '../../Helper/AxiosInstance';
 import Card from '../../Components/Card';
 import Footer from '../../Components/Footer';
 import { fetchWishList } from '../../Store/user/wishlist';
-import Pagination from '../../Components/pagination';
+import Pagination from '../../Components/Pagination';
 
 const Shop = () => {
 

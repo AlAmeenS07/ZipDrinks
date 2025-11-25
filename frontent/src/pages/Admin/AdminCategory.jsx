@@ -5,7 +5,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axiosInstance from '../../Helper/AxiosInstance';
 import { Loader } from 'react-feather';
-import Pagination from '../../Components/pagination';
+import Pagination from '../../Components/Pagination';
 
 export default function AdminCategory() {
   const [categories, setCategories] = useState([]);

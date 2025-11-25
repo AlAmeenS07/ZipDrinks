@@ -4,7 +4,7 @@ import AdminMain from '../../../Components/Admin/AdminMain';
 import { Link, useSearchParams } from 'react-router-dom';
 import axiosInstance from '../../../Helper/AxiosInstance';
 import { toast } from 'react-toastify';
-import Pagination from '../../../Components/pagination';
+import Pagination from '../../../Components/Pagination';
 
 export default function AdminProducts() {
 
