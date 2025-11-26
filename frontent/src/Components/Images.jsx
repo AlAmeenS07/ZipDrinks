@@ -45,8 +45,7 @@ const Images = ({ images, productName }) => {
         {/* Main Image */}
         <div
           className="relative border border-gray-300 rounded overflow-hidden bg-white
-          w-[280px] h-[280px]
-          sm:w-[320px] sm:h-[320px]
+          w-full h-[350px] 
           md:w-[350px] md:h-[350px]
           lg:w-[400px] lg:h-[400px]"
           onMouseEnter={() => setZoom(true)}
