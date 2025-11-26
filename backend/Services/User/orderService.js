@@ -524,7 +524,10 @@ export const downloadOrderInvoiceService = async (req, res) => {
         const taxAmount = Math.floor(Math.max(0, baseSubtotal) * TAX_PERCENT);
 
         // Final payable total
-        let totalPayable = Math.max(0, baseSubtotal + taxAmount - order.couponAmount);
+        const couponPrice = Number(order.couponAmount ?? 0);
+
+        let totalPayable = Math.max( 0, baseSubtotal + taxAmount - couponPrice);
+
         totalPayable = Math.round(totalPayable)
 
         //GENERATE PDF 
