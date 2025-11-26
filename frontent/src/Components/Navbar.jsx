@@ -7,7 +7,7 @@ import axiosInstance from '../Helper/AxiosInstance';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 import { useEffect } from 'react';
-import { fetchCart } from '../Store/user/cartSlice';
+import { clearCart, fetchCart } from '../Store/user/cartSlice';
 
 const Navbar = () => {
 
@@ -48,7 +48,7 @@ const Navbar = () => {
                     const res = await axiosInstance.post(backendurl + '/api/auth/logout');
                     if (res.data.success) {
                         dispatch(logout());
-                        dispatch(fetchCart())
+                        dispatch(clearCart())
                         toast.success("logout Successfully")
                         navigate('/');
                     }
