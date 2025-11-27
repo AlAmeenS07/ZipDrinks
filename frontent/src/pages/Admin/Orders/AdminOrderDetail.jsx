@@ -70,7 +70,7 @@ export default function AdminOrderDetail() {
       let { data } = await axiosInstance.patch(`/api/admin/orders/${orderId}/return`, { status })
 
       if (data.success) {
-        toast.success("Return approved successfully")
+        toast.success("Return request updated successfully")
         setOrder(data.order)
       }
       else {
@@ -91,7 +91,7 @@ export default function AdminOrderDetail() {
       let { data } = await axiosInstance.patch(`/api/admin/orders/${orderId}/return-item`, { sku, status })
 
       if (data.success) {
-        toast.success("Order item returned successfully")
+        toast.success("Order item updated successfully")
         setOrder(data.order)
       }
       else {
@@ -213,6 +213,11 @@ export default function AdminOrderDetail() {
                           >
                             Approve
                           </button>
+                          <button
+                            className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                            onClick={() => approveOrderItemReturn(orderId, selectedItem.sku , "return-rejected")}>
+                            Reject
+                          </button>
                         </div>
                       )}
 
@@ -293,6 +298,11 @@ export default function AdminOrderDetail() {
                     className="px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700"
                     onClick={() => approveOrderReturn(orderId, "returned")}>
                     Approve
+                  </button>
+                  <button
+                    className="px-4 py-2 ms-4 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                    onClick={() => approveOrderReturn(orderId, "return-rejected")}>
+                    Reject
                   </button>
                 </div>
               )

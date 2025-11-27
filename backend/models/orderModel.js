@@ -66,7 +66,7 @@ const orderSchema = new mongoose.Schema(
                 },
                 status: {
                     type: String,
-                    enum: ["pending", "processing", "out-for-delivery", "delivered", "cancelled", "return-requested", "returned",],
+                    enum: ["pending", "processing", "out-for-delivery", "delivered", "cancelled", "return-requested", "returned", "return-rejected"],
                     default: "pending",
                 },
                 refundAmount: { 
@@ -176,7 +176,7 @@ const orderSchema = new mongoose.Schema(
 
         orderStatus: {
             type: String,
-            enum: [ "pending", "processing", "out-for-delivery", "delivered", "cancelled", "returned", "return-requested"],
+            enum: [ "pending", "processing", "out-for-delivery", "delivered", "cancelled", "returned", "return-requested" , "return-rejected"],
             default: "pending",
         },
 
