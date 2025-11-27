@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Heart, ShoppingCart, User, Menu, X } from 'lucide-react';
-import { Link, useNavigate , NavLink } from 'react-router-dom';
+import { Link, useNavigate, NavLink } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux"
 import { logout } from '../Store/user/UserSlice';
 import axiosInstance from '../Helper/AxiosInstance';
@@ -20,9 +20,9 @@ const Navbar = () => {
 
     const cartCount = useSelector(state => state.cart?.cartData?.items);
 
-    useEffect(()=>{
+    useEffect(() => {
         dispatch(fetchCart())
-    },[dispatch])
+    }, [dispatch])
 
     function handleAccountClick() {
         if (!isLoggedIn) {
@@ -56,7 +56,7 @@ const Navbar = () => {
                     console.log(error.message);
                     toast.error('Error!', 'Something went wrong during logout.', error?.response?.data?.message);
                 }
-                finally{
+                finally {
                     setDropDown(false)
                 }
             }
@@ -77,10 +77,10 @@ const Navbar = () => {
                                 <img src="/ZipLogo-New.png" alt="Zip Logo" className='h-10 w-20 m-2' />
                             </NavLink>
                             <nav className="hidden lg:flex space-x-6 xl:space-x-8">
-                                <NavLink to="/" className={({ isActive })=> isActive?"text-white hover:text-blue-400 transition text-sm xl:text-base":"text-neutral-400 hover:text-white transition text-sm xl:text-base"}>Home</NavLink>
-                                <NavLink to="/shop" className={({ isActive })=> isActive?"text-white hover:text-blue-400 transition text-sm xl:text-base":"text-neutral-400 hover:text-white transition text-sm xl:text-base"}>Shop</NavLink>
-                                <NavLink to="/about" className={({ isActive })=> isActive?"text-white hover:text-blue-400 transition text-sm xl:text-base":"text-neutral-400 hover:text-white transition text-sm xl:text-base"}>About</NavLink>
-                                <NavLink to="/contact" className={({ isActive })=> isActive?"text-white hover:text-blue-400 transition text-sm xl:text-base":"text-neutral-400 hover:text-white transition text-sm xl:text-base"}>Contact</NavLink>
+                                <NavLink to="/" className={({ isActive }) => isActive ? "text-white hover:text-blue-400 transition text-sm xl:text-base" : "text-neutral-400 hover:text-white transition text-sm xl:text-base"}>Home</NavLink>
+                                <NavLink to="/shop" className={({ isActive }) => isActive ? "text-white hover:text-blue-400 transition text-sm xl:text-base" : "text-neutral-400 hover:text-white transition text-sm xl:text-base"}>Shop</NavLink>
+                                <NavLink to="/about" className={({ isActive }) => isActive ? "text-white hover:text-blue-400 transition text-sm xl:text-base" : "text-neutral-400 hover:text-white transition text-sm xl:text-base"}>About</NavLink>
+                                <NavLink to="/contact" className={({ isActive }) => isActive ? "text-white hover:text-blue-400 transition text-sm xl:text-base" : "text-neutral-400 hover:text-white transition text-sm xl:text-base"}>Contact</NavLink>
                             </nav>
                         </div>
 
@@ -91,7 +91,7 @@ const Navbar = () => {
                             <Link to={"/cart"} className="text-neutral-400 hover:text-white transition relative">
                                 <ShoppingCart size={20} className="w-5 h-5 sm:w-6 sm:h-6" />
                                 <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-blue-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                                    {cartCount?.reduce((count , item)=> count + item.quantity , 0) || 0}
+                                    {cartCount?.reduce((count, item) => count + item.quantity, 0) || 0}
                                 </span>
                             </Link>
                             <button
@@ -127,7 +127,14 @@ const Navbar = () => {
                             </Link>
 
                             <div className="flex items-center space-x-4 pt-3 border-t border-neutral-700 px-2">
-                                <button className="flex items-center space-x-2 text-neutral-400 hover:text-white transition">
+                                <button className="flex items-center space-x-2 text-neutral-400 hover:text-white transition"
+                                    onClick={() => {
+                                        if (!isLoggedIn) {
+                                            navigate("/login")
+                                        } else {
+                                            navigate('/wishlist')
+                                        }
+                                    }}>
                                     <Heart size={20} />
                                     <span className="text-sm">Wishlist</span>
                                 </button>
