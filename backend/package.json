@@ -28,5 +28,11 @@
     "pdfkit": "^0.17.2",
     "razorpay": "^2.9.6",
     "winston": "^3.18.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.5.0"
   }
 }

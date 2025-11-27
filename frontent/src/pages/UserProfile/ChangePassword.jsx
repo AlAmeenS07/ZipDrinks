@@ -12,7 +12,7 @@ const ChangePassword = () => {
 
     const navigate = useNavigate()
     const user = useSelector(state => state.user.userData)
-    const [loading , setLoading] = useState(false)
+    const [loading, setLoading] = useState(false)
 
     const { register, handleSubmit, formState: { errors }, watch } = useForm()
 
@@ -33,9 +33,9 @@ const ChangePassword = () => {
         } catch (error) {
             toast.error(error.response.data.message)
         }
-        finally{
+        finally {
             setLoading(false)
-        }  
+        }
     }
 
     return (
@@ -44,6 +44,10 @@ const ChangePassword = () => {
                 <ol className="list-reset flex">
                     <li>
                         <Link to="/" className="text-blue-600 hover:underline">Home</Link>
+                    </li>
+                    <li><span className="mx-2">/</span></li>
+                    <li>
+                        <Link to="/profile" className="text-blue-600 hover:underline">Profile</Link>
                     </li>
                     <li><span className="mx-2">/</span></li>
                     <li className="text-gray-700">Change Password</li>

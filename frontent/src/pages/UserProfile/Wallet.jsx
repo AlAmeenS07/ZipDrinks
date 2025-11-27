@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import axiosInstance from '../../Helper/AxiosInstance';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import Pagination from '../../Components/Pagination';
 
 export default function Wallet() {
@@ -56,12 +56,19 @@ export default function Wallet() {
             <div className="min-h-screen bg-gray-50 p-4 md:p-8">
                 <div className="max-w-6xl mx-auto">
                     {/* Breadcrumb */}
-                    <div className="flex items-center gap-2 text-sm text-gray-600 mb-6">
-                        <span className="hover:text-gray-900 cursor-pointer">profile</span>
-                        <ChevronRight className="w-4 h-4" />
-                        <span className="hover:text-gray-900 cursor-pointer">wallet</span>
-                        <ChevronRight className="w-4 h-4" />
-                    </div>
+                    <nav className="text-sm text-gray-500 mb-4" aria-label="breadcrumb">
+                        <ol className="list-reset flex">
+                            <li>
+                                <Link to="/" className="text-blue-600 hover:underline">Home</Link>
+                            </li>
+                            <li><span className="mx-2">/</span></li>
+                            <li>
+                                <Link to="/profile" className="text-blue-600 hover:underline">Profile</Link>
+                            </li>
+                            <li><span className="mx-2">/</span></li>
+                            <li className="text-gray-700">Wallet</li>
+                        </ol>
+                    </nav>
 
                     {/* Main Card */}
                     <div className="bg-white rounded-3xl shadow-lg p-6 md:p-10">

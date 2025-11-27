@@ -27,7 +27,7 @@ const Home = () => {
     return (
         <div>
             <Banner />
-            <div className="min-h-[1000] bg-gray-100 p-4 my-4">
+            <div className="min-h-screen bg-gray-100 p-4 my-4">
                 <div className="max-w-7xl mx-auto">
                     <h1 className="text-4xl text-center font-bold text-gray-900 mb-2">Special Drinks</h1>
                     <p className="text-gray-600 text-center mb-8">Check out our Special Drinks</p>
@@ -51,7 +51,7 @@ const Home = () => {
 
             <img src="Home-cooldrinks.webp" className="w-full h-auto object-cover my-4" />
 
-            <div className="min-h-[1000] bg-gray-100 p-4 my-4">
+            <div className="min-h-screen bg-gray-100 p-4 my-4">
                 <div className="max-w-7xl mx-auto">
                     <h1 className="text-4xl text-center font-bold text-gray-900 mb-2">Refreshing Drinks</h1>
                     <p className="text-gray-600 text-center mb-8">Check out our Refreshing Drinks</p>
