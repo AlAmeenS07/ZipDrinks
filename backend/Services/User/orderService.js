@@ -1,5 +1,4 @@
 import razorpay from "../../confiq/razorpay.js";
-import logger from "../../utils/logger.js";
 import cartModel from "../../models/cartModel.js"
 import orderModel from "../../models/orderModel.js"
 import productModel from "../../models/productModel.js"
@@ -370,7 +369,9 @@ export const cancelOrderitemService = async (req, res) => {
             }
         }
 
-        order.totalAmount = order.subTotal + order.taxAmount + order.deliveryFee - order.couponAmount
+        const couponPrice = Number(order.couponAmount ?? 0)
+
+        order.totalAmount = order.subTotal + order.taxAmount + order.deliveryFee - couponPrice
 
         if (order.paymentMethod != "COD") {
 
@@ -517,16 +518,16 @@ export const downloadOrderInvoiceService = async (req, res) => {
         const couponDiscount = order.couponAmount || 0;
         const deliveryFee = order.deliveryFee || 0;
 
+        const couponPrice = Number(order.couponAmount ?? 0);
+
         // Base subtotal (before tax)
-        const baseSubtotal = deliveredSubtotal + deliveryFee;
+        const baseSubtotal = deliveredSubtotal + deliveryFee - couponPrice;
 
         // Tax 18%
         const taxAmount = Math.floor(Math.max(0, baseSubtotal) * TAX_PERCENT);
 
         // Final payable total
-        const couponPrice = Number(order.couponAmount ?? 0);
-
-        let totalPayable = Math.max( 0, baseSubtotal + taxAmount - couponPrice);
+        let totalPayable = Math.max( 0, baseSubtotal + taxAmount);
 
         totalPayable = Math.round(totalPayable)
 

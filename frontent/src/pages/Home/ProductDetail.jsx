@@ -313,7 +313,7 @@ const ProductDetail = () => {
                     </div>
                 </div>
 
-                <div className="min-h-[1000] bg-gray-100 p-4 my-4">
+                <div className="min-h-screen bg-gray-100 p-4 my-4">
                     <div className="max-w-7xl mx-auto">
                         <h1 className="text-4xl text-center font-bold text-gray-900 mb-2">Recommended Drinks</h1>
                         <p className="text-gray-600 text-center mb-8">Check out our recommended Drinks</p>
