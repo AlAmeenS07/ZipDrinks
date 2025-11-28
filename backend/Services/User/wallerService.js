@@ -16,10 +16,10 @@ export const getUserWalletService = async (userId, page = 1, limit = 5 , filter)
     let query = {}
 
     if(filter == "credit"){
-        query.type = "credit"
+        query["payments.type"] = "credit"
     }
-    else{
-        query.type = "debit"
+    else if(filter == "debit"){
+        query["payments.type"] = "debit"
     }
 
     let wallet = await walletModel.aggregate([

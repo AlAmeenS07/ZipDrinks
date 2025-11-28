@@ -89,6 +89,7 @@ export default function Wallet() {
 
                         <div>
                             <select value={filter} onChange={(e)=> setFilter(e.target.value)}>
+                                <option value="">Sort</option>
                                 <option value="credit">Credited</option>
                                 <option value="debit">Debited</option>
                             </select>
