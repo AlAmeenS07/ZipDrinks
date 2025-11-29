@@ -13,7 +13,7 @@ export default function Wallet() {
     const [query, setQuery] = useSearchParams()
 
     const [currentPage, setCurrentPage] = useState(Number(query.get("page")) || 1)
-    const [filter , setFilter] = useState(query.get("filter") || "")
+    const [filter, setFilter] = useState(query.get("filter") || "")
     const [totalPages, setTotalPages] = useState(1)
     const itemsPerPage = 5
 
@@ -22,9 +22,9 @@ export default function Wallet() {
     useEffect(() => {
         setQuery({
             page: currentPage,
-            filter : filter
+            filter: filter
         })
-    }, [currentPage, setQuery , filter])
+    }, [currentPage, setQuery, filter])
 
     useEffect(() => {
         async function getWallet() {
@@ -32,7 +32,7 @@ export default function Wallet() {
 
                 const params = {
                     page: currentPage,
-                    filter : filter,
+                    filter: filter,
                     limit: itemsPerPage
                 }
 
@@ -52,7 +52,7 @@ export default function Wallet() {
             }
         }
         getWallet()
-    }, [currentPage , filter])
+    }, [currentPage, filter])
 
     return (
         <UserProfileMain>
@@ -87,14 +87,17 @@ export default function Wallet() {
                             </p>
                         </div>
 
-                        <div>
-                            <select value={filter} onChange={(e)=> setFilter(e.target.value)}>
-                                <option value="">Sort</option>
+                        <div className="mb-6 flex justify-end">
+                            <select
+                                value={filter}
+                                onChange={(e) => setFilter(e.target.value)}
+                                className="px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            >
+                                <option value="">Sort By</option>
                                 <option value="credit">Credited</option>
                                 <option value="debit">Debited</option>
                             </select>
                         </div>
-
 
                         {/* Transaction Table */}
                         <div className="overflow-x-auto mb-8">

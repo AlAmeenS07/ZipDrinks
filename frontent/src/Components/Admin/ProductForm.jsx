@@ -170,7 +170,6 @@ const ProductForm = ({ productEditSubmit, product }) => {
         }
         finally {
             setLoading(false)
-            reset()
         }
     };
 
@@ -412,7 +411,7 @@ const ProductForm = ({ productEditSubmit, product }) => {
                                         required: "Sale price is required!",
                                         min: { value: 0, message: "Sale price must be greaterthan 0!" },
                                         max: { value: 100000, message: "Maximum 100000 allowed!" },
-                                        validate : (val)=> val <= watch(`variants.${index}.price`) || "sale price should be lessthan or equal to price !"
+                                        validate : (val)=> Number(val) <= Number(watch(`variants.${index}.price`)) || "sale price should be lessthan or equal to price !"
                                     })}
                                     placeholder="45"
                                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm"

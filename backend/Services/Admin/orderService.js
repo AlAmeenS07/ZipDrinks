@@ -1,7 +1,7 @@
 import orderModel from "../../models/orderModel.js";
 import productModel from "../../models/productModel.js";
 import walletModel from "../../models/wallet.js";
-import { BAD_REQUEST, NOT_FOUND, SERVER_ERROR, SUCCESS, TAX_PERCENT } from "../../utils/constants.js";
+import { BAD_REQUEST, MISSING_DETAILS, NOT_FOUND, ORDER_FETCHED_SUCCESSFULLY, ORDER_ITEM_NOT_FOUND, ORDER_ITEM_RETURNED_SUCCESSFULLY, ORDER_NOT_FOUND, ORDER_RETURN_APPROVED, ORDERS_FETCHED_SUCCESSFULLY, ORDERS_NOT_FOUND, SERVER_ERROR, SUCCESS, TAX_PERCENT } from "../../utils/constants.js";
 import { transactionIdCreator } from "../User/authServices.js";
 
 export const getOrdersService = async (req, res) => {
@@ -66,12 +66,12 @@ export const getOrdersService = async (req, res) => {
       .limit(limitNumber);
 
     if (!orders || orders.length === 0) {
-      return res.status(NOT_FOUND).json({ success: false, message: "No orders found!" });
+      return res.status(NOT_FOUND).json({ success: false, message: ORDERS_NOT_FOUND });
     }
 
     return res.status(SUCCESS).json({
       success: true,
-      message: "Orders fetched successfully!",
+      message: ORDERS_FETCHED_SUCCESSFULLY,
       totalOrders,
       totalPages: Math.ceil(totalOrders / limitNumber),
       currentPage: pageNumber,
@@ -90,10 +90,10 @@ export const getSingleOrderService = async (req, res) => {
     let order = await orderModel.findById(orderId).populate("userId");
 
     if (!order) {
-      return res.status(NOT_FOUND).json({ success: false, message: "Order not found!" });
+      return res.status(NOT_FOUND).json({ success: false, message: ORDER_NOT_FOUND });
     }
 
-    return res.status(SUCCESS).json({ success: true, message: "Order fetched successfully", order });
+    return res.status(SUCCESS).json({ success: true, message: ORDER_FETCHED_SUCCESSFULLY, order });
 
   } catch (error) {
     return res.status(SERVER_ERROR).json({ success: false, message: error.message });
@@ -107,12 +107,12 @@ export const changeOrderStatusService = async (req, res) => {
 
   try {
     if (!orderId || !status) {
-      return res.status(BAD_REQUEST).json({ success: false, message: "Missing details!" });
+      return res.status(BAD_REQUEST).json({ success: false, message: MISSING_DETAILS });
     }
 
     let orderDetail = await orderModel.findById(orderId);
     if (!orderDetail) {
-      return res.status(NOT_FOUND).json({ success: false, message: "Order not found!" });
+      return res.status(NOT_FOUND).json({ success: false, message: ORDERS_NOT_FOUND });
     }
 
     if (status === "cancelled") {
@@ -160,7 +160,7 @@ export const approveOrderReturnService = async (req, res) => {
     let order = await orderModel.findById(orderId);
 
     if (!order) {
-      return res.status(NOT_FOUND).json({ success: false, message: "Order not found!" });
+      return res.status(NOT_FOUND).json({ success: false, message: ORDERS_NOT_FOUND });
     }
 
     if (status == "return-rejected") {
@@ -223,7 +223,7 @@ export const approveOrderReturnService = async (req, res) => {
 
     await order.save();
 
-    return res.status(SUCCESS).json({ success: true, message: "Order return approved", order });
+    return res.status(SUCCESS).json({ success: true, message: ORDER_RETURN_APPROVED, order });
 
   } catch (error) {
     return res.status(SERVER_ERROR).json({ success: false, message: error.message });
@@ -238,12 +238,12 @@ export const approveOrderItemReturnService = async (req, res) => {
   try {
     let order = await orderModel.findById(orderId);
     if (!order) {
-      return res.status(NOT_FOUND).json({ success: false, message: "Order not found!" });
+      return res.status(NOT_FOUND).json({ success: false, message: ORDER_NOT_FOUND });
     }
 
     let item = order.items.find(i => i.sku === sku);
     if (!item) {
-      return res.status(NOT_FOUND).json({ success: false, message: "Order item not found!" });
+      return res.status(NOT_FOUND).json({ success: false, message: ORDER_ITEM_NOT_FOUND });
     }
 
     if (status == "return-rejected") {
@@ -310,7 +310,7 @@ export const approveOrderItemReturnService = async (req, res) => {
     }
     await order.save();
 
-    return res.status(SUCCESS).json({ success: true, message: "Order item returned successfully", order });
+    return res.status(SUCCESS).json({ success: true, message: ORDER_ITEM_RETURNED_SUCCESSFULLY, order });
 
   } catch (error) {
     return res.status(SERVER_ERROR).json({ success: false, message: error.message });

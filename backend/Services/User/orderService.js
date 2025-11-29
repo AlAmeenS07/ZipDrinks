@@ -7,7 +7,7 @@ import crypto from "crypto"
 import walletModel from "../../models/wallet.js";
 import { transactionIdCreator } from "./authServices.js";
 import couponModel from "../../models/coupon.js";
-import { BAD_REQUEST, MAX_COD_AMOUNT, NOT_FOUND, SERVER_ERROR, SEVEN_DIGIT_MIN_VALUE, SEVEN_DIGIT_RANGE_VALUE, SUCCESS, TAX_PERCENT, UNAUTHORIZED } from "../../utils/constants.js";
+import { BAD_REQUEST, COD_LIMIT_EXCEEDED, INSUFFICIENT_WALLET_AMOUNT, INVALID_PAYMENT_SIGNATURE, ITEM_NOT_FOUND_IN_ORDER, MAX_COD_AMOUNT, MISSING_DETAILS, NOT_AUTHORIZED, NOT_FOUND, ORDER_CANCELLED_SUCCESSFULLY, ORDER_CANNOT_BE_CANCELLED, ORDER_FETCHED_SUCCESSFULLY, ORDER_ITEM_CANCELLED, ORDER_ITEM_NOT_FOUND, ORDER_NOT_FOUND, ORDER_PLACED_SUCCESSFULLY, ORDER_RETURN_REQUESTED, ORDERS_FETCHED_SUCCESSFULLY, ORDERS_NOT_FOUND, PAYMENT_VERIFIED_SUCCESSFULLY, PRODUCT_NOT_FOUND, RAZORPAY_ORDER_CREATED, SERVER_ERROR, SEVEN_DIGIT_MIN_VALUE, SEVEN_DIGIT_RANGE_VALUE, SOMETHING_WENT_WRONG, SUCCESS, TAX_PERCENT, UNAUTHORIZED } from "../../utils/constants.js";
 
 
 const orderTransactionIdCreator = async () => {
@@ -33,17 +33,17 @@ export const placeOrderService = async (req, res) => {
     const { address, products, subTotal, taxAmount, totalAmount, paymentMethod, userId, couponId, couponAmount } = req.body
 
     if (!userId) {
-        return res.status(UNAUTHORIZED).json({ success: false, message: "Not Authorized !" })
+        return res.status(UNAUTHORIZED).json({ success: false, message: NOT_AUTHORIZED })
     }
 
     try {
 
         if (Object.keys(address).length == 0 || products.length == 0 || !subTotal || !taxAmount || !totalAmount || !paymentMethod) {
-            return res.status(BAD_REQUEST).json({ success: false, message: "Something wrong ! Missing fields !" })
+            return res.status(BAD_REQUEST).json({ success: false, message: MISSING_DETAILS })
         }
 
         if (totalAmount > MAX_COD_AMOUNT && paymentMethod == "COD") {
-            return res.status(BAD_REQUEST).json({ success: false, message: "COD is not available for orders above 1000 !" })
+            return res.status(BAD_REQUEST).json({ success: false, message: COD_LIMIT_EXCEEDED })
         }
 
         for (let product of products) {
@@ -74,7 +74,7 @@ export const placeOrderService = async (req, res) => {
 
             return res.status(SUCCESS).json({
                 success: true,
-                message: "Razorpay order created successfully",
+                message: RAZORPAY_ORDER_CREATED,
                 razorpayOrder,
                 key: process.env.RAZOR_PAY_API_KEY,
                 orderId,
@@ -99,7 +99,7 @@ export const placeOrderService = async (req, res) => {
             }
 
             if (wallet.balance < totalAmount) {
-                return res.status(BAD_REQUEST).json({ success: false, message: "Insufficient amount in wallet !" })
+                return res.status(BAD_REQUEST).json({ success: false, message: INSUFFICIENT_WALLET_AMOUNT })
             }
 
             let transactionId = await transactionIdCreator()
@@ -139,7 +139,7 @@ export const placeOrderService = async (req, res) => {
 
         await order.save();
 
-        res.status(SUCCESS).json({ success: true, message: "Order successfull", order })
+        res.status(SUCCESS).json({ success: true, message: ORDER_PLACED_SUCCESSFULLY, order })
 
     } catch (error) {
         res.status(SERVER_ERROR).json({ success: false, message: error.message })
@@ -165,7 +165,7 @@ export const getUserOrderService = async (req, res) => {
         }
 
         if (!userId) {
-            return res.status(UNAUTHORIZED).json({ success: false, message: "Not authorized !" })
+            return res.status(UNAUTHORIZED).json({ success: false, message: NOT_AUTHORIZED })
         }
 
         const totalOrders = await orderModel.countDocuments(query);
@@ -173,11 +173,11 @@ export const getUserOrderService = async (req, res) => {
         let orders = await orderModel.find(query).sort({ createdAt: -1 }).skip(skipItems).limit(limitPerPage)
 
         if (!orders) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Orders not found !" })
+            return res.status(NOT_FOUND).json({ success: false, message: ORDERS_NOT_FOUND })
         }
 
         res.status(SUCCESS).json({
-            success: true, message: "Orders fetched successfully", orders, totalOrders,
+            success: true, message: ORDERS_FETCHED_SUCCESSFULLY, orders, totalOrders,
             currentPage: pageNum, totalPages: Math.ceil(totalOrders / limitPerPage)
         })
 
@@ -194,20 +194,20 @@ export const getSingleOrderService = async (req, res) => {
     try {
 
         if (!userId) {
-            return res.status(UNAUTHORIZED).json({ success: false, message: "Not authorized !" })
+            return res.status(UNAUTHORIZED).json({ success: false, message: NOT_AUTHORIZED })
         }
 
         if (!orderId) {
-            return res.status(BAD_REQUEST).json({ success: false, message: "Something went wrong !" })
+            return res.status(BAD_REQUEST).json({ success: false, message: SOMETHING_WENT_WRONG })
         }
 
         let orderDetail = await orderModel.findById(orderId)
 
         if (!orderDetail) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Order not found !" })
+            return res.status(NOT_FOUND).json({ success: false, message: ORDER_NOT_FOUND })
         }
 
-        res.status(SUCCESS).json({ success: true, message: "Order fetched Successfully !", orderDetail })
+        res.status(SUCCESS).json({ success: true, message: ORDER_FETCHED_SUCCESSFULLY, orderDetail })
 
     } catch (error) {
         res.status(SERVER_ERROR).json({ success: false, message: error.message })
@@ -222,16 +222,16 @@ export const cancelOrderService = async (req, res) => {
 
     try {
         if (!userId) {
-            return res.status(UNAUTHORIZED).json({ success: false, message: "Not authorized!" });
+            return res.status(UNAUTHORIZED).json({ success: false, message: NOT_AUTHORIZED });
         }
 
         const order = await orderModel.findById(orderId);
         if (!order) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Order not found!" });
+            return res.status(NOT_FOUND).json({ success: false, message: ORDER_NOT_FOUND });
         }
 
         if (order.orderStatus !== "pending" && order.orderStatus !== "processing") {
-            return res.status(BAD_REQUEST).json({ success: false, message: "This order cannot be cancelled now!" });
+            return res.status(BAD_REQUEST).json({ success: false, message: ORDER_CANNOT_BE_CANCELLED });
         }
 
         for (const item of order.items) {
@@ -286,7 +286,7 @@ export const cancelOrderService = async (req, res) => {
 
         res.status(SUCCESS).json({
             success: true,
-            message: "Order cancelled successfully!",
+            message: ORDER_CANCELLED_SUCCESSFULLY,
             order,
         });
 
@@ -305,22 +305,22 @@ export const cancelOrderitemService = async (req, res) => {
 
     try {
         if (!userId) {
-            return res.status(UNAUTHORIZED).json({ success: false, message: "Not authorized!" });
+            return res.status(UNAUTHORIZED).json({ success: false, message: NOT_AUTHORIZED });
         }
 
         const order = await orderModel.findById(orderId);
         if (!order) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Order not found!" });
+            return res.status(NOT_FOUND).json({ success: false, message: ORDER_NOT_FOUND });
         }
 
         const item = order.items.find((item) => item.sku === sku);
         if (!item) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Order item not found!" });
+            return res.status(NOT_FOUND).json({ success: false, message: ORDER_ITEM_NOT_FOUND });
         }
 
         const product = await productModel.findById(item.productId);
         if (!product) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Product not found!" });
+            return res.status(NOT_FOUND).json({ success: false, message: PRODUCT_NOT_FOUND });
         }
 
         const variant = product.variants.find((v) => v.sku === sku);
@@ -418,7 +418,7 @@ export const cancelOrderitemService = async (req, res) => {
 
         await order.save();
 
-        return res.status(SUCCESS).json({ success: true, message: "Order item cancelled!", order });
+        return res.status(SUCCESS).json({ success: true, message: ORDER_ITEM_CANCELLED, order });
 
     } catch (error) {
         res.status(SERVER_ERROR).json({ success: false, message: error.message });
@@ -435,7 +435,7 @@ export const returnOrderService = async (req, res) => {
         let order = await orderModel.findById(orderId)
 
         if (!order) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Order not found !" })
+            return res.status(NOT_FOUND).json({ success: false, message: ORDER_NOT_FOUND })
         }
 
         order.orderStatus = status || "return-requested";
@@ -448,7 +448,7 @@ export const returnOrderService = async (req, res) => {
 
         await order.save()
 
-        res.status(SUCCESS).json({ success: true, message: "Order return requsted", order })
+        res.status(SUCCESS).json({ success: true, message: ORDER_RETURN_REQUESTED, order })
 
     } catch (error) {
         res.status(SERVER_ERROR).json({ success: false, message: error.message })
@@ -465,12 +465,12 @@ export const returnOrderItemService = async (req, res) => {
         let order = await orderModel.findById(orderId);
 
         if (!order) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Order not found !" })
+            return res.status(NOT_FOUND).json({ success: false, message: ORDER_NOT_FOUND })
         }
 
         const item = order.items.find((i) => i.sku === sku);
         if (!item) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Item not found in order!" });
+            return res.status(NOT_FOUND).json({ success: false, message: ITEM_NOT_FOUND_IN_ORDER });
         }
 
         item.status = status || "return-requested"
@@ -488,7 +488,7 @@ export const returnOrderItemService = async (req, res) => {
 
         await order.save()
 
-        res.status(SUCCESS).json({ success: true, message: "Return requested successfully !", order })
+        res.status(SUCCESS).json({ success: true, message: ORDER_RETURN_REQUESTED, order })
 
     } catch (error) {
         res.status(SERVER_ERROR).json({ success: false, message: error.message })
@@ -502,7 +502,7 @@ export const downloadOrderInvoiceService = async (req, res) => {
     try {
         const order = await orderModel.findById(orderId).populate("userId");
         if (!order) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Order not found!" });
+            return res.status(NOT_FOUND).json({ success: false, message: ORDER_NOT_FOUND });
         }
 
         // Split items by status
@@ -619,7 +619,7 @@ export const verifyPaymentService = async (req, res) => {
         if (expectedSignature !== razorpay_signature) {
             return res.status(BAD_REQUEST).json({
                 success: false,
-                message: "Invalid payment signature — Payment not verified!"
+                message: INVALID_PAYMENT_SIGNATURE
             });
         }
 
@@ -662,7 +662,7 @@ export const verifyPaymentService = async (req, res) => {
 
         return res.status(SUCCESS).json({
             success: true,
-            message: "Payment verified & order placed successfully!",
+            message: PAYMENT_VERIFIED_SUCCESSFULLY,
             order,
         });
 

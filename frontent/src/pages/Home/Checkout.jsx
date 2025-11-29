@@ -236,10 +236,8 @@ const Checkout = () => {
     } catch (error) {
       Swal.fire({
         icon: "error",
-        title: "Payment Verification Failed",
-        html: `${error?.response?.data?.message || "Payment verification failed!"}
-                <br/><br/>
-                <strong>Or choose another payment method</strong>`,
+        title: "Order Failed",
+        text: error?.response?.data?.message,
         confirmButtonColor: "#000",
       });
     }

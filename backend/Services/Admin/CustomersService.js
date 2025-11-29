@@ -1,5 +1,5 @@
 import userModel from "../../models/userModel.js";
-import { NOT_FOUND, SERVER_ERROR, SUCCESS } from "../../utils/constants.js";
+import { NOT_FOUND, SERVER_ERROR, SUCCESS, UPDATED_SUCCESSFULLY, USER_NOT_FOUND } from "../../utils/constants.js";
 
 export const getCustomersService = async (req, res) => {
   try {
@@ -51,7 +51,7 @@ export const blockUnblockCustomerService = async (req, res) => {
     let customer = await userModel.findById(customerId);
 
     if (!customer) {
-      return res.status(NOT_FOUND).json({ success: false, message: "User not found!" });
+      return res.status(NOT_FOUND).json({ success: false, message: USER_NOT_FOUND });
     }
 
     if (customer.isBlocked) {
@@ -62,7 +62,7 @@ export const blockUnblockCustomerService = async (req, res) => {
 
     await customer.save();
 
-    return res.status(SUCCESS).json({ success: true, message: "Updated successfully", customer });
+    return res.status(SUCCESS).json({ success: true, message: UPDATED_SUCCESSFULLY, customer });
 
   } catch (error) {
     return res.status(SERVER_ERROR).json({ success: false, message: error.message });

@@ -12,7 +12,7 @@ const AdminCouponAdd = () => {
     async function addCoupon(data) {
         try {
 
-            const res = await axiosInstance.post('/api/admin/coupons/add-coupon', { data })
+            const res = await axiosInstance.post('/api/admin/coupons/add-coupon', { ...data })
 
             if (res.data.success) {
                 toast.success("coupon created successfully")

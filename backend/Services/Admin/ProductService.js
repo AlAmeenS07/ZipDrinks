@@ -1,6 +1,6 @@
 import categoryModel from "../../models/categoryModel.js";
 import productModel from "../../models/productModel.js";
-import { BAD_REQUEST, CONFLICT, CREATED, NOT_FOUND, SERVER_ERROR, SUCCESS } from "../../utils/constants.js";
+import { BAD_REQUEST, CONFLICT, CREATED, INVALID_CATEGORY_SELECTED, NOT_FOUND, PRODUCT_ADDED_SUCCESSFULLY, PRODUCT_ALREADY_EXISTS, PRODUCT_FETCHED_SUCCESSFULLY, PRODUCT_NOT_FOUND, PRODUCT_UPDATED_SUCCESSFULLY, PRODUCTS_FETCHED_SUCCESSFULLY, SERVER_ERROR, SOMETHING_WENT_WRONG, SUCCESS } from "../../utils/constants.js";
 
 export const addProductsServic = async (req, res) => {
     try {
@@ -9,19 +9,19 @@ export const addProductsServic = async (req, res) => {
             brand, ingredients, serve, store, life, variants, coverImage
         } = req.body;
 
-        if (
-            !name?.trim() || !category?.trim() || !description?.trim() ||
-            !brand?.trim() || !ingredients?.trim() || !serve?.trim() ||
-            !store?.trim() || !life?.trim() || !coverImage?.trim() ||
-            !variants?.length || !images?.length
-        ) {
-            return res.status(BAD_REQUEST).json({ success: false, message: "Invalid Entries!" });
-        }
+        // if (
+        //     !name?.trim() || !category?.trim() || !description?.trim() ||
+        //     !brand?.trim() || !ingredients?.trim() || !serve?.trim() ||
+        //     !store?.trim() || !life?.trim() || !coverImage?.trim() ||
+        //     !variants?.length || !images?.length
+        // ) {
+        //     return res.status(BAD_REQUEST).json({ success: false, message: "Invalid Entries!" });
+        // }
 
         const existProduct = await productModel.findOne({ name });
 
         if (existProduct) {
-            return res.status(CONFLICT).json({ success: false, message: "Product already exists!" });
+            return res.status(CONFLICT).json({ success: false, message: PRODUCT_ALREADY_EXISTS });
         }
 
         const categoryData = await categoryModel.findOne({ name: category });
@@ -76,7 +76,7 @@ export const addProductsServic = async (req, res) => {
 
         await product.save();
 
-        res.status(CREATED).json({ success: true, message: "Product added successfully", product });
+        res.status(CREATED).json({ success: true, message: PRODUCT_ADDED_SUCCESSFULLY , product });
 
     } catch (error) {
         res.status(SERVER_ERROR).json({ success: false, message: error.message });
@@ -112,12 +112,12 @@ export const getProductsService = async (req, res) => {
         let products = await productModel.find(query).sort(sortQuery).skip(skip).limit(limitPerPage);
 
         if (!products) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Something went wrong !" });
+            return res.status(NOT_FOUND).json({ success: false, message: SOMETHING_WENT_WRONG });
         }
 
         res.status(SUCCESS).json({
             success: true,
-            message: "Products fetched successfully",
+            message: PRODUCTS_FETCHED_SUCCESSFULLY,
             products,
             total,
             totalPages: Math.ceil(total / limitPerPage),
@@ -136,13 +136,13 @@ export const productListUnlistService = async (req, res) => {
         let product = await productModel.findById(productId);
 
         if (!product) {
-            return res.status(NOT_FOUND).json({ success: false, message: "User not Found !" });
+            return res.status(NOT_FOUND).json({ success: false, message: PRODUCT_NOT_FOUND});
         }
 
         product.isListed = !product.isListed;
         await product.save();
 
-        res.status(SUCCESS).json({ success: true, message: "Updated Successfully", product });
+        res.status(SUCCESS).json({ success: true, message: PRODUCT_UPDATED_SUCCESSFULLY, product });
 
     } catch (error) {
         res.status(SERVER_ERROR).json({ success: false, message: error.message });
@@ -156,10 +156,10 @@ export const singleProductService = async (req, res) => {
         let product = await productModel.findById(productId);
 
         if (!product) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Something wrong !" });
+            return res.status(NOT_FOUND).json({ success: false, message: SOMETHING_WENT_WRONG });
         }
 
-        res.status(SUCCESS).json({ success: true, message: "Product fetched successfully", product });
+        res.status(SUCCESS).json({ success: true, message: PRODUCT_FETCHED_SUCCESSFULLY, product });
 
     } catch (error) {
         res.status(SERVER_ERROR).json({ success: false, message: error.message });
@@ -175,17 +175,17 @@ export const updateProductService = async (req, res) => {
             brand, ingredients, serve, store, life, variants, coverImage,
         } = req.body;
 
-        if (
-            !name?.trim() || !category?.trim() || !description?.trim() || !brand?.trim() ||
-            !ingredients?.trim() || !serve?.trim() || !store?.trim() || !life?.trim() ||
-            !coverImage?.trim() || !variants?.length || !images?.length
-        ) {
-            return res.status(BAD_REQUEST).json({ success: false, message: "Invalid Entries!" });
-        }
+        // if (
+        //     !name?.trim() || !category?.trim() || !description?.trim() || !brand?.trim() ||
+        //     !ingredients?.trim() || !serve?.trim() || !store?.trim() || !life?.trim() ||
+        //     !coverImage?.trim() || !variants?.length || !images?.length
+        // ) {
+        //     return res.status(BAD_REQUEST).json({ success: false, message: "Invalid Entries!" });
+        // }
 
         const categoryData = await categoryModel.findOne({ name: category });
         if (!categoryData) {
-            return res.status(BAD_REQUEST).json({ success: false, message: "Invalid category selected!" });
+            return res.status(BAD_REQUEST).json({ success: false, message: INVALID_CATEGORY_SELECTED });
         }
 
         const categoryOffer = categoryData?.offer || null;
@@ -243,12 +243,12 @@ export const updateProductService = async (req, res) => {
         );
 
         if (!updatedProduct) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Product not found!" });
+            return res.status(NOT_FOUND).json({ success: false, message: PRODUCT_NOT_FOUND });
         }
 
         res.status(SUCCESS).json({
             success: true,
-            message: "Product updated successfully",
+            message: PRODUCT_UPDATED_SUCCESSFULLY,
             product: updatedProduct,
         });
 

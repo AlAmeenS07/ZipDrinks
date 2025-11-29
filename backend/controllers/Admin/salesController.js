@@ -1,7 +1,7 @@
 import { getSalesService } from "../../Services/Admin/salesService.js"
 import PDFDocument from "pdfkit";
 import ExcelJS from "exceljs";
-import { NOT_FOUND, SERVER_ERROR, SUCCESS } from "../../utils/constants.js";
+import { FAILED_TO_GENERATE_PDF, NOT_FOUND, ORDERS_NOT_FOUND, SALES_FETCHED_SUCCESSFULLY, SALES_NOT_FOUND, SERVER_ERROR, SUCCESS } from "../../utils/constants.js";
 
 // get sales report
 
@@ -14,10 +14,10 @@ export const getSales = async (req, res) => {
     let { allOrders, sales } = await getSalesService(filter, startDate, endDate)
 
     if (!sales || !allOrders) {
-      return res.status(NOT_FOUND).json({ success: false, message: "No Sales found !" })
+      return res.status(NOT_FOUND).json({ success: false, message: SALES_NOT_FOUND })
     }
 
-    res.status(SUCCESS).json({ success: true, message: "Sales fetched successfully", allOrders, sales })
+    res.status(SUCCESS).json({ success: true, message: SALES_FETCHED_SUCCESSFULLY, allOrders, sales })
 
   } catch (error) {
     res.status(SERVER_ERROR).json({ success: false, message: error.message })
@@ -33,7 +33,7 @@ export const generateSalesPdf = async (req, res) => {
     const data = await getSalesService(filter, startDate, endDate);
 
     if (!data || !data.allOrders || data.allOrders.length === 0) {
-      return res.status(NOT_FOUND).json({ success: false, message: "No orders found for the selected filter."});
+      return res.status(NOT_FOUND).json({ success: false, message: ORDERS_NOT_FOUND });
     }
 
     const { allOrders, sales } = data;
@@ -172,7 +172,7 @@ export const generateSalesPdf = async (req, res) => {
     doc.end();
   } catch (error) {
     console.log(error);
-    return res.status(SERVER_ERROR).json({success: false, message: "Failed to generate PDF"});
+    return res.status(SERVER_ERROR).json({success: false, message: FAILED_TO_GENERATE_PDF });
   }
 };
 
@@ -187,7 +187,7 @@ export const generateSalesExcel = async (req, res) => {
     //  Fetch sales data 
     const data = await getSalesService(filter, startDate, endDate);
     if (!data || !data.allOrders.length) {
-      return res.status(NOT_FOUND).json({ success: false, message: "No orders found" });
+      return res.status(NOT_FOUND).json({ success: false, message: ORDERS_NOT_FOUND });
     }
 
     const { allOrders, sales } = data;
@@ -260,6 +260,6 @@ export const generateSalesExcel = async (req, res) => {
     await workbook.xlsx.write(res);
     res.end();
   } catch (error) {
-    res.status(SERVER_ERROR).json({ success: false, message: "Failed to generate Excel file" });
+    res.status(SERVER_ERROR).json({ success: false, message: error.message });
   }
 };

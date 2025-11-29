@@ -6,13 +6,11 @@ import connectDb from "./confiq/db.js"
 import authRouter from "./routes/User/authRoutes.js"
 import userRouter from "./routes/User/userRoutes.js"
 import passport from "./confiq/passport.js"
-import AdminRouter from "./routes/Admin/AdminRouter.js"
 import productRouter from "./routes/productRoutes.js"
 import categoryRouter from "./routes/categoryRoutes.js"
 import wishlistRouter from "./routes/wishlistRoutes.js"
 import cartRouter from "./routes/cartRoutes.js"
 import orderRouter from "./routes/orderRoutes.js"
-import logger from "./utils/logger.js"
 import couponRouter from "./routes/couponRoutes.js"
 import walletRouter from "./routes/User/wallerRoutes.js"
 import bannerRouter from "./routes/User/bannerRoutes.js"
@@ -27,6 +25,7 @@ import AdminCouponRouter from "./routes/Admin/AdminCouponsRoutes.js"
 import AdminSalesRouter from "./routes/Admin/AdminSalesRoutes.js"
 import AdminDashboardRouter from "./routes/Admin/AdminDashboardRoutes.js"
 import AdminBannerRouter from "./routes/Admin/AdminBannerRoutes.js"
+import { errorHandler } from "./middlewares/errorHandler.js"
 
 const app = express()
 const port = process.env.PORT || 5000
@@ -79,10 +78,7 @@ app.use('/api/admin/sales' , AdminSalesRouter)
 app.use('/api/admin/dashboard' , AdminDashboardRouter)
 app.use('/api/admin/banner' , AdminBannerRouter)
 
-app.use((err, req, res, next) => {
-  logger.error(err.stack);
-  res.status(500).json({ success: false, message: 'Server Error' });
-});
+app.use(errorHandler)
 
 app.listen(port , ()=>{
     console.log(`Server running on port http://localhost:${port}`)

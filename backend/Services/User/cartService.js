@@ -1,7 +1,7 @@
 import cartModel from "../../models/cartModel.js";
 import productModel from "../../models/productModel.js";
 import wishlistModel from "../../models/wishlistModel.js";
-import { BAD_REQUEST, MAX_CART_QUANTITY, NOT_FOUND, SERVER_ERROR, SUCCESS, UNAUTHORIZED } from "../../utils/constants.js";
+import { ADDED_TO_CART_SUCCESSFULLY, BAD_REQUEST, CANNOT_ADD_MORE_THAN_FIVE, CART_CLEARED, CART_FETCHED_SUCCESSFULLY, CART_NOT_FOUND, INVALID_REQUEST, ITEM_NOT_FOUND_IN_CART, MAX_CART_QUANTITY, MISSING_REQUIRED_FIELDS, NOT_AUTHORIZED, NOT_ENOUGH_STOCK_AVAILABLE, NOT_FOUND, PRODUCT_NOT_FOUND, PRODUCT_OUT_OF_STOCK, PRODUCT_VARIANT_NOT_FOUND, REMOVED_FROM_CART, SERVER_ERROR, SUCCESS, UNAUTHORIZED } from "../../utils/constants.js";
 
 
 export const addToCartService = async (req, res) => {
@@ -10,25 +10,25 @@ export const addToCartService = async (req, res) => {
     try {
 
         if (!userId) {
-            return res.status(UNAUTHORIZED).json({ success: false, message: "Not Authorized!" });
+            return res.status(UNAUTHORIZED).json({ success: false, message: NOT_AUTHORIZED });
         }
 
         if (!productId || !sku) {
-            return res.status(BAD_REQUEST).json({ success: false, message: "Invalid request!" });
+            return res.status(BAD_REQUEST).json({ success: false, message: INVALID_REQUEST });
         }
 
         const product = await productModel.findOne({ _id: productId, isListed: true });
         if (!product) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Product not found!" });
+            return res.status(NOT_FOUND).json({ success: false, message: PRODUCT_NOT_FOUND });
         }
 
         const variant = product.variants.find(v => v.sku === sku);
         if (!variant) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Product variant not found!" });
+            return res.status(NOT_FOUND).json({ success: false, message: PRODUCT_VARIANT_NOT_FOUND });
         }
 
         if (variant.quantity <= 0) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Product is out of stock!" });
+            return res.status(NOT_FOUND).json({ success: false, message: PRODUCT_OUT_OF_STOCK });
         }
 
         let cart = await cartModel.findOne({ userId });
@@ -48,11 +48,11 @@ export const addToCartService = async (req, res) => {
             if (existingItem) {
 
                 if (existingItem.quantity >= MAX_CART_QUANTITY) {
-                    return res.status(BAD_REQUEST).json({ success: false, message: "Cannot add more than 5 quantity of this product!" });
+                    return res.status(BAD_REQUEST).json({ success: false, message: CANNOT_ADD_MORE_THAN_FIVE });
                 }
 
                 if (existingItem.quantity + 1 > variant.quantity) {
-                    return res.status(BAD_REQUEST).json({ success: false, message: "Not enough stock available!" });
+                    return res.status(BAD_REQUEST).json({ success: false, message: NOT_ENOUGH_STOCK_AVAILABLE });
                 }
 
                 existingItem.quantity += 1;
@@ -61,7 +61,7 @@ export const addToCartService = async (req, res) => {
             } else {
 
                 if (variant.quantity < 1) {
-                    return res.status(BAD_REQUEST).json({ success: false, message: "Not enough stock available!" });
+                    return res.status(BAD_REQUEST).json({ success: false, message: NOT_ENOUGH_STOCK_AVAILABLE });
                 }
 
                 cart.items.push({ productId, sku, quantity: 1, subTotal: variant.salePrice });
@@ -74,7 +74,7 @@ export const addToCartService = async (req, res) => {
 
         await wishlistModel.updateOne({ userId }, { $pull: { items: { productId } } });
 
-        res.status(SUCCESS).json({ success: true, message: "Added to cart successfully", cart });
+        res.status(SUCCESS).json({ success: true, message: ADDED_TO_CART_SUCCESSFULLY, cart });
 
     } catch (error) {
         res.status(SERVER_ERROR).json({ success: false, message: error.message });
@@ -90,10 +90,10 @@ export const getCartItemsService = async (req, res) => {
         const cart = await cartModel.findOne({ userId }).populate("items.productId");
 
         if (!cart) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Cart not found!" });
+            return res.status(NOT_FOUND).json({ success: false, message: CART_NOT_FOUND });
         }
 
-        res.status(SUCCESS).json({ success: true, message: "Cart fetched successfully", cart });
+        res.status(SUCCESS).json({ success: true, message: CART_FETCHED_SUCCESSFULLY, cart });
 
     } catch (error) {
         res.status(SERVER_ERROR).json({ success: false, message: error.message });
@@ -108,22 +108,22 @@ export const decrementCartService = async (req, res) => {
 
         const cart = await cartModel.findOne({ userId });
         if (!cart) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Cart not found!" });
+            return res.status(NOT_FOUND).json({ success: false, message: CART_NOT_FOUND });
         }
 
         const product = await productModel.findById(productId);
         if (!product) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Product not found!" });
+            return res.status(NOT_FOUND).json({ success: false, message: PRODUCT_NOT_FOUND });
         }
 
         const variant = product.variants.find(v => v.sku === sku);
         if (!variant) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Product variant not found!" });
+            return res.status(NOT_FOUND).json({ success: false, message: PRODUCT_VARIANT_NOT_FOUND });
         }
 
         const item = cart.items.find(item => item.productId.toString() === productId && item.sku === sku);
         if (!item) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Item not found in cart!" });
+            return res.status(NOT_FOUND).json({ success: false, message: ITEM_NOT_FOUND_IN_CART });
         }
 
         item.quantity -= 1;
@@ -156,11 +156,11 @@ export const removeFromCartService = async (req, res) => {
     try {
 
         if (!userId) {
-            return res.status(UNAUTHORIZED).json({ success: false, message: "Not Authorized!" });
+            return res.status(UNAUTHORIZED).json({ success: false, NOT_AUTHORIZED });
         }
 
         if (!productId || !sku) {
-            return res.status(BAD_REQUEST).json({ success: false, message: "Missing required fields!" });
+            return res.status(BAD_REQUEST).json({ success: false, message: MISSING_REQUIRED_FIELDS });
         }
 
         const cart = await cartModel.findOneAndUpdate(
@@ -170,13 +170,13 @@ export const removeFromCartService = async (req, res) => {
         );
 
         if (!cart) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Cart not found!" });
+            return res.status(NOT_FOUND).json({ success: false, message: CART_NOT_FOUND });
         }
 
         cart.totalAmount = cart.items.reduce((sum, i) => sum + i.subTotal, 0) || 0;
         await cart.save();
 
-        res.status(SUCCESS).json({ success: true, message: "Removed from cart!", cart });
+        res.status(SUCCESS).json({ success: true, message: REMOVED_FROM_CART, cart });
 
     } catch (error) {
         res.status(SERVER_ERROR).json({ success: false, message: error.message });
@@ -190,19 +190,19 @@ export const clearCartService = async (req, res) => {
     try {
 
         if (!userId) {
-            return res.status(UNAUTHORIZED).json({ success: false, message: "Not Authorized!" });
+            return res.status(UNAUTHORIZED).json({ success: false, message: NOT_AUTHORIZED });
         }
 
         const cart = await cartModel.findOne({ userId });
         if (!cart) {
-            return res.status(NOT_FOUND).json({ success: false, message: "Cart not found!" });
+            return res.status(NOT_FOUND).json({ success: false, message: CART_NOT_FOUND });
         }
 
         cart.items = [];
         cart.totalAmount = 0;
         await cart.save();
 
-        res.status(SUCCESS).json({ success: true, message: "Cart Cleared!" });
+        res.status(SUCCESS).json({ success: true, message: CART_CLEARED });
 
     } catch (error) {
         res.status(SERVER_ERROR).json({ success: false, message: error.message });

@@ -1,6 +1,6 @@
 import couponModel from "../../models/coupon.js"
 import orderModel from "../../models/orderModel.js"
-import { BAD_REQUEST, NOT_FOUND, SERVER_ERROR, SUCCESS } from "../../utils/constants.js"
+import { BAD_REQUEST, COUPON_ALREADY_USED, COUPON_APPLIED_SUCCESSFULLY, COUPON_IS_EXPIRED, COUPON_NOT_FOUND, COUPONS_FETCHED_SUCCESSFULLY, MINIMUM_PURCHASE_REQUIRED, NOT_FOUND, SERVER_ERROR, SUCCESS } from "../../utils/constants.js"
 
 
 export const getUserCouponsService = async(req , res)=>{
@@ -9,12 +9,12 @@ export const getUserCouponsService = async(req , res)=>{
         let coupons = await couponModel.find({isDeleted : false})
 
         if(!coupons){
-            return res.status(NOT_FOUND).json({success : false , message : "Coupons not found"})
+            return res.status(NOT_FOUND).json({success : false , message : COUPON_NOT_FOUND })
         }
 
         coupons = coupons.filter(c => new Date() < new Date(c.expiryDate))
 
-        res.status(SUCCESS).json({success : true , message : "Coupons fetched successfully" , coupons})
+        res.status(SUCCESS).json({success : true , message : COUPONS_FETCHED_SUCCESSFULLY , coupons})
         
     } catch (error) {
         res.status(SERVER_ERROR).json({success : false , message : error.message})
@@ -29,21 +29,21 @@ export const applyCouponService = async(req , res)=>{
         let coupon = await couponModel.findOne({_id : couponId , isDeleted : false , isActive : true})
 
         if(!coupon){
-            return res.status(NOT_FOUND).json({success : false , message : "Coupon not found !"})
+            return res.status(NOT_FOUND).json({success : false , message : COUPON_NOT_FOUND })
         }
 
         if(totalAmount < coupon.minPurchase){
-            return res.status(BAD_REQUEST).json({success : false , message : `Minimum purchase should be ${coupon.minPurchase} `})
+            return res.status(BAD_REQUEST).json({success : false , message : `${MINIMUM_PURCHASE_REQUIRED} ${coupon.minPurchase} `})
         }
 
         if(new Date() > new Date(coupon.expiryDate)){
-            return res.status(BAD_REQUEST).json({success : false , message : "Coupon is expired !"})
+            return res.status(BAD_REQUEST).json({success : false , message : COUPON_IS_EXPIRED })
         }
 
         let orders = await orderModel.find({userId , couponId})
 
         if(orders.length >= coupon.limit){
-            return res.status(BAD_REQUEST).json({success : false , message : "Coupon is already used !"})
+            return res.status(BAD_REQUEST).json({success : false , message : COUPON_ALREADY_USED })
         }
 
         let couponDiscount;
@@ -59,7 +59,7 @@ export const applyCouponService = async(req , res)=>{
             couponDiscount = coupon.maxRedeem
         }
 
-        res.status(SUCCESS).json({success : true , message : "Coupon applied successfully" , couponDiscount})
+        res.status(SUCCESS).json({success : true , message : COUPON_APPLIED_SUCCESSFULLY , couponDiscount})
         
     } catch (error) {
         res.status(SERVER_ERROR).json({success : false , message : error.message})

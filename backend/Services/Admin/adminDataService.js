@@ -1,5 +1,5 @@
 import userModel from "../../models/userModel.js";
-import { NOT_FOUND, SERVER_ERROR, SUCCESS } from "../../utils/constants.js";
+import { NOT_FOUND, SERVER_ERROR, SUCCESS, USER_NOT_FOUND } from "../../utils/constants.js";
 
 export const getAdminDataService = async (req, res) => {
     try {
@@ -8,7 +8,7 @@ export const getAdminDataService = async (req, res) => {
         const user = await userModel.findById(userId);
 
         if (!user) {
-            return res.status(NOT_FOUND).json({ success: false, message: "User not found" });
+            return res.status(NOT_FOUND).json({ success: false, message: USER_NOT_FOUND });
         }
 
         return res.status(SUCCESS).json({
